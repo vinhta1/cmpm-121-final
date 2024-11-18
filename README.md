@@ -4,10 +4,10 @@
 Tools Lead: **Jack O’Brien**
 Engine Lead: **Luke Murayama**
 Design Lead: **Isha Chury**
+Co-design Lead: **Tony Pau**
 #### Subroles
 Audio Design: **Vinh Ta**
 Video of Project: **Jack O’Brien**
-Co-design Lead: **Tony Pau**
 
 
 ## Tools and Materials
