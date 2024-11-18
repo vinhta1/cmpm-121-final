@@ -1,13 +1,13 @@
 # Devlog - 11/17
 
 ## Introducing the Team
-Tools Lead: **Jack O’Brien**
-Engine Lead: **Luke Murayama**
-Design Lead: **Isha Chury**
-Co-design Lead: **Tony Pau**
+- Tools Lead: **Jack O’Brien**
+- Engine Lead: **Luke Murayama**
+- Design Lead: **Isha Chury**
+- Co-design Lead: **Tony Pau**
 #### Subroles
-Audio Design: **Vinh Ta**
-Video of Project: **Jack O’Brien**
+- Audio Design: **Vinh Ta**
+- Video of Project: **Jack O’Brien**
 
 
 ## Tools and Materials
