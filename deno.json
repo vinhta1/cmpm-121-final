@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "dev": "deno run -A --node-modules-dir npm:vite"
+  },
+  "compilerOptions": {
+    "lib": ["es2015", "dom"]
+  }
+}
