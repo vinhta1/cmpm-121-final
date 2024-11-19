@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "npm:p5@^1.11.1": "1.11.1",
     "npm:vite@*": "5.4.11"
   },
   "npm": {
@@ -164,6 +165,9 @@
     "nanoid@3.3.7": {
       "integrity": "sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g=="
     },
+    "p5@1.11.1": {
+      "integrity": "sha512-JWvOwAgInsuSOjzMwAtaiN8gMLzhR1jcyosytNeftH0vnTkywfIyFfVYFfsLSsh6B+DYuqJYu1SVcfkuvrYi1Q=="
+    },
     "picocolors@1.1.1": {
       "integrity": "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="
     },
@@ -212,5 +216,10 @@
         "rollup"
       ]
     }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:p5@^1.11.1"
+    ]
   }
 }
