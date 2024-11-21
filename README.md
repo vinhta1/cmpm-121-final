@@ -30,15 +30,18 @@ We're planning on switching to Phaser just so that when we do have to switch fra
 
 ## Outlook
 ### What do we hope to accomplish
+We hope to create a functional game that incorporates all of the assignment requirements, while also allowing the player to have fun. Alongside this, we would also like to include this game on our individual portfolios, and showcase our individual efforts and work.
 - We hope to make a game that exists
 - Something fun
 - Something to add to our individual portfolios
 ### What is the hardest/riskiest part of this
+The hardest part of this project would be managing various tasks and responsibilities across team members. It can be difficult to coordinate times to host team meetings, as well as ensuring everyone contributes equally to the project. Another challenge would be to handle the random requirement, and change the project to suit it. In that same vein, it might be difficult to handle tasks that may be too difficult given our current skill level and develop them within the assignment’s deadline. 
 - Working and coordinating with a team.
 - Finishing the project requirements on time.
 - Dealing with the random requirements.
 - Taking on bits that might be too difficult for current skill level within deadline.
 ### What are we hoping to learn from this
+We aim to develop our ability to collaborate effectively, both in real-time and asynchronously, while making meaningful contributions to the game's codebase. We aim to follow best practices by writing clean, maintainable code, focusing on implementing coding patterns and ensuring modularity throughout our project. We hope to learn version control more efficiently and commit on a regular basis, and follow best practices including formatting our code and refactoring.  
 - How to work on a game simultaneously and asynchronously so that we can work on our own and not have any bottlenecks.
 - How to format a game to be extendable and modular within its code
 - Version control and committing practices
