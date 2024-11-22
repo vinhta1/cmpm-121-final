@@ -8,18 +8,26 @@ interface ImageCommand {
     scale: number
 }
 
-interface Renderer{
+interface Renderer {
+    ready: Promise<void>,
     addImage(path: string, x: number, y: number, scale: number): void,
-    refresh():void,
+    refresh(): void,
 }
 
-export class P5Renderer implements Renderer{
+export class P5Renderer implements Renderer {
     private p: p5;
     private images: ImageCommand[];
     private imagePaths: string[];
     private preloadedImages: Map<string, p5.Image>;
 
+    public ready: Promise<void>;
+    private resolveReady: () => void;
+
     constructor(imagePaths: string[]) {
+        this.ready = new Promise((resolve) => {
+            this.resolveReady = resolve;
+        })
+
         this.images = [];
         this.imagePaths = imagePaths;
         this.preloadedImages = new Map<string, p5.Image>();
@@ -40,11 +48,10 @@ export class P5Renderer implements Renderer{
             const canvas = p.createCanvas(size.width, size.height);
             canvas.parent(canvasElement);
             p.background(255);
-            p.noLoop();
+            this.resolveReady();
         };
         p.draw = () => {
-            console.log("draw")
-            if(this.images.length>0){
+            if (this.images.length > 0) {
                 this.renderImages();
             }
         }
@@ -57,16 +64,15 @@ export class P5Renderer implements Renderer{
         })
     }
 
-    private renderImages(){
-        this.images.forEach((i:ImageCommand)=>{
-        console.log("Drawing: " + i.img);
-        this.p.push();
-        this.p.imageMode;
-        this.p.imageMode(this.p.CENTER);
-        this.p.translate(i.x, i.y);
-        this.p.scale(i.scale);
-        this.p.image(this.preloadedImages.get(i.img)!, 0, 0);
-        this.p.pop();
+    private renderImages() {
+        this.images.forEach((i: ImageCommand) => {
+            this.p.push();
+            this.p.imageMode;
+            this.p.imageMode(this.p.CENTER);
+            this.p.translate(i.x, i.y);
+            this.p.scale(i.scale);
+            this.p.image(this.preloadedImages.get(i.img)!, 0, 0);
+            this.p.pop();
         })
     }
 
@@ -78,14 +84,9 @@ export class P5Renderer implements Renderer{
         }
     }
 
-    public clearStack(){
-        this.images.length=0;
+    public refresh() {
+        this.p.clear();
+        this.p.background(255);
+        this.images.length = 0;
     }
-
-
-    public refresh(){
-        this.p.redraw();
-    }
-
-
 }

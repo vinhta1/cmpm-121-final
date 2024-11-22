@@ -2,11 +2,11 @@ h1 {
     color: red;
 }
 
-body{
+body {
     background-color: grey;
 }
 
-#canvas-container{
+#canvas-container {
     width: 300px;
     height: 200px;
     background-color: lightblue;
