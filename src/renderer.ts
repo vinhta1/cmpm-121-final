@@ -11,7 +11,7 @@ interface ImageCommand {
 interface Renderer {
     ready: Promise<void>,
     addImage(path: string, x: number, y: number, scale: number): void,
-    refresh(): void,
+    clear(): void,
 }
 
 export class P5Renderer implements Renderer {
@@ -84,7 +84,7 @@ export class P5Renderer implements Renderer {
         }
     }
 
-    public refresh() {
+    public clear() {
         this.p.clear();
         this.p.background(255);
         this.images.length = 0;
