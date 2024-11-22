@@ -1,5 +1,5 @@
 export default {
-    base: Deno.env.get("REPO_NAME") || "/project",
+    base: "/project/",
     server: {
       hmr: false
     }

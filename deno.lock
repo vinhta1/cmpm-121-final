@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "npm:@types/p5@^1.7.6": "1.7.6",
     "npm:p5@^1.11.1": "1.11.1",
     "npm:vite@*": "5.4.11"
   },
@@ -131,6 +132,9 @@
     "@types/estree@1.0.6": {
       "integrity": "sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw=="
     },
+    "@types/p5@1.7.6": {
+      "integrity": "sha512-6pLTOo0V3N5jZb5nTwjiv3lPHLK3Z/TjbhQUj8CTWXocUk1Z/f6OHTp3Pcwi1BhWnf5gqKUcyEb1gP0KIJuQgw=="
+    },
     "esbuild@0.21.5": {
       "integrity": "sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==",
       "dependencies": [
@@ -219,6 +223,7 @@
   },
   "workspace": {
     "dependencies": [
+      "npm:@types/p5@^1.7.6",
       "npm:p5@^1.11.1"
     ]
   }
