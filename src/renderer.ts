@@ -9,7 +9,6 @@ interface ImageCommand {
 }
 
 interface Renderer {
-  ready: Promise<void>;
   addImage(path: string, x: number, y: number, scale: number): void;
   clear(): void;
 }
@@ -20,17 +19,13 @@ export class P5Renderer implements Renderer {
   private imagePaths: string[];
   private preloadedImages: Map<string, p5.Image>;
 
-  public ready: Promise<void>;
-  private resolveReady: () => void = () => {};
+  private scale: number;
 
-  constructor(imagePaths: string[]) {
-    this.ready = new Promise((resolve) => {
-      this.resolveReady = resolve;
-    });
-
+  constructor(imagePaths: string[], scale: number) {
     this.images = [];
     this.imagePaths = imagePaths;
     this.preloadedImages = new Map<string, p5.Image>();
+    this.scale = scale;
     this.p = new p5(this.sketch.bind(this));
   }
 
@@ -45,8 +40,15 @@ export class P5Renderer implements Renderer {
       const size: DOMRect = canvasElement.getBoundingClientRect();
       const canvas = p.createCanvas(size.width, size.height);
       canvas.parent(canvasElement);
+
+      const htmlCanvas = document.querySelector("canvas")!;
+      htmlCanvas.style.imageRendering = "pixelated";
+      htmlCanvas.style.transform = `scale(${this.scale})`;
+      htmlCanvas.style.transformOrigin = "0 0";
+
+      p.noSmooth();
       p.background(255);
-      this.resolveReady();
+      p.noLoop();
     };
     p.draw = () => {
       if (this.images.length > 0) {
@@ -68,8 +70,7 @@ export class P5Renderer implements Renderer {
       this.p.imageMode;
       this.p.imageMode(this.p.CENTER);
       this.p.translate(i.x, i.y);
-      this.p.scale(i.scale);
-      this.p.image(this.preloadedImages.get(i.img)!, 0, 0);
+      this.p.image(this.preloadedImages.get(i.img)!, 0, 0, i.scale, i.scale);
       this.p.pop();
     });
   }
@@ -77,6 +78,7 @@ export class P5Renderer implements Renderer {
   public addImage(path: string, x: number, y: number, scale: number) {
     if (this.preloadedImages.get(path)) {
       this.images.push({ img: path, x, y, scale });
+      this.p.draw();
     } else {
       console.warn("Please define image in config.ts IMAGE_PATHS: " + path);
     }

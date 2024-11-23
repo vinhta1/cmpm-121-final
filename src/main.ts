@@ -4,14 +4,24 @@ import * as g from "./grid.ts";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
-const test: HTMLHeadingElement = document.createElement("h1");
-test.innerHTML = "TEST";
-app.appendChild(test);
+const title: HTMLHeadingElement = document.createElement("h1");
+title.innerHTML = "TEST";
+app.appendChild(title);
 
-const renderer = new r.P5Renderer(c.IMAGE_PATHS);
+const canvasElement: HTMLDivElement = document.querySelector(
+  "#canvas-container",
+)!;
 
-const width = 3;
-const height = 3;
+const width = 10;
+const height = 5;
+
+const scale = 5;
+
+canvasElement.style.width = `${width * c.TILE_SIZE}px`;
+canvasElement.style.height = `${height * c.TILE_SIZE}px`;
+
+const renderer = new r.P5Renderer(c.IMAGE_PATHS, scale);
+
 const grid = new g.Grid(width, height);
 
 for (let i = 0; i < height; i++) {
@@ -34,19 +44,13 @@ for (let i = 0; i < height; i++) {
   }
 }
 
-drawing();
-
-async function drawing() {
-  await renderer.ready;
-
-  setInterval(() => {
-    console.log("drawing");
-    renderer.clear();
-    renderer.addImage(
-      c.IMAGE_PATHS[2],
-      Math.random() * 300,
-      Math.random() * 200,
-      1,
-    );
-  }, 1000);
-}
+setInterval(() => {
+  console.log("drawing");
+  renderer.clear();
+  renderer.addImage(
+    c.IMAGE_PATHS[2],
+    0 + c.TILE_SIZE / 2,
+    0 + c.TILE_SIZE / 2,
+    c.TILE_SIZE,
+  );
+}, 1000);

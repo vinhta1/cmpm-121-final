@@ -1,4 +1,5 @@
 export const IMAGE_PATHS: string[] = [];
+export const TILE_SIZE: number = 16;
 
 IMAGE_PATHS.push(new URL("./assets/test_pixel.png", import.meta.url).href);
 
