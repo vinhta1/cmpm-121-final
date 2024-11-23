@@ -21,7 +21,13 @@ export class P5Renderer implements Renderer {
 
   private scale: number;
 
+  private readyPromise: Promise<void>;
+  private resolveReadyPromise: () => void = () => {};
+
   constructor(imagePaths: string[], scale: number) {
+    this.readyPromise = new Promise((resolve) => {
+      this.resolveReadyPromise = resolve;
+    });
     this.images = [];
     this.imagePaths = imagePaths;
     this.preloadedImages = new Map<string, p5.Image>();
@@ -49,6 +55,7 @@ export class P5Renderer implements Renderer {
       p.noSmooth();
       p.background(255);
       p.noLoop();
+      this.resolveReadyPromise();
     };
     p.draw = () => {
       if (this.images.length > 0) {
@@ -75,7 +82,8 @@ export class P5Renderer implements Renderer {
     });
   }
 
-  public addImage(path: string, x: number, y: number, scale: number) {
+  public async addImage(path: string, x: number, y: number, scale: number) {
+    await this.readyPromise;
     if (this.preloadedImages.get(path)) {
       this.images.push({ img: path, x, y, scale });
       this.p.draw();
@@ -84,7 +92,8 @@ export class P5Renderer implements Renderer {
     }
   }
 
-  public clear() {
+  public async clear() {
+    await this.readyPromise;
     this.p.clear();
     this.p.background(255);
     this.images.length = 0;

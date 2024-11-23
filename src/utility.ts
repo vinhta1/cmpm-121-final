@@ -1,6 +1,21 @@
 export const IMAGE_PATHS: string[] = [];
 export const TILE_SIZE: number = 16;
 
+export const KEY_MAP: Record<string, string> = {
+  w: "up",
+  ArrowUp: "up",
+  a: "left",
+  ArrowLeft: "left",
+  s: "down",
+  ArrowDown: "down",
+  d: "right",
+  ArrowRight: "right",
+};
+
+export function clamp(n: number, max: number, min: number) {
+  return Math.max(min, Math.min(n, max));
+}
+
 IMAGE_PATHS.push(new URL("./assets/test_pixel.png", import.meta.url).href);
 
 function getCropUrl(name: string) {
