@@ -78,7 +78,7 @@ export class P5Renderer implements Renderer {
     if (this.preloadedImages.get(path)) {
       this.images.push({ img: path, x, y, scale });
     } else {
-      console.warn("Please define image in config.ts IMAGE_PATHS");
+      console.warn("Please define image in config.ts IMAGE_PATHS: " + path);
     }
   }
 

@@ -43,10 +43,10 @@ async function drawing() {
     console.log("drawing");
     renderer.clear();
     renderer.addImage(
-      c.IMAGE_PATHS[0],
+      c.IMAGE_PATHS[2],
       Math.random() * 300,
       Math.random() * 200,
-      20,
+      1,
     );
   }, 1000);
 }

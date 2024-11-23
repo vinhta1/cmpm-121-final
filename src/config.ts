@@ -1,7 +1,11 @@
-// @ts-ignore: <Vite uses import on static assets to get the resolved public URL, I'm too tired to figure out how to make deno happy about that>
+export const IMAGE_PATHS: string[] = [];
 
-import test from "./assets/test_pixel.png";
+function getImageUrl(path: string) {
+  return new URL(path, import.meta.url).href;
+}
 
-export const IMAGE_PATHS: string[] = [
-  `${test}`,
-];
+IMAGE_PATHS.push(getImageUrl("./assets/test_pixel.png"));
+
+for (let i = 1; i <= 33; i++) {
+  IMAGE_PATHS.push(getImageUrl(`./assets/crops/Crops${i}.png`));
+}
