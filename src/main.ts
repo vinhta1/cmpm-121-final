@@ -34,15 +34,19 @@ for (let i = 0; i < height; i++) {
   }
 }
 
-await renderer.ready;
+drawing();
 
-setInterval(() => {
-  console.log("drawing");
-  renderer.clear();
-  renderer.addImage(
-    c.IMAGE_PATHS[0],
-    Math.random() * 300,
-    Math.random() * 200,
-    20,
-  );
-}, 1000);
+async function drawing() {
+  await renderer.ready;
+
+  setInterval(() => {
+    console.log("drawing");
+    renderer.clear();
+    renderer.addImage(
+      c.IMAGE_PATHS[0],
+      Math.random() * 300,
+      Math.random() * 200,
+      20,
+    );
+  }, 1000);
+}
