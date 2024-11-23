@@ -57,7 +57,7 @@ export class P5Renderer implements Renderer {
 
   private preloadImages() {
     this.imagePaths.forEach((path) => {
-      const imageP5 = this.p.loadImage(path);
+      const imageP5 = this.p.loadImage(`${import.meta.env.BASE_URL}/${path}`);
       this.preloadedImages.set(path, imageP5);
     });
   }

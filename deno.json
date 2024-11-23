@@ -10,6 +10,7 @@
   "compilerOptions": {
     "lib": ["es2015", "dom"]
   },
+
   "imports": {
     "@types/p5": "npm:@types/p5@^1.7.6",
     "p5": "npm:p5@^1.11.1"
