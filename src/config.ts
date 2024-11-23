@@ -1,11 +1,11 @@
 export const IMAGE_PATHS: string[] = [];
 
-function getImageUrl(path: string) {
-  return new URL(path, import.meta.url).href;
+IMAGE_PATHS.push(new URL("./assets/test_pixel.png", import.meta.url).href);
+
+function getCropUrl(name: string) {
+  return new URL(`./assets/crops/${name}.png`, import.meta.url).href;
 }
 
-IMAGE_PATHS.push(getImageUrl("./assets/test_pixel.png"));
-
 for (let i = 1; i <= 33; i++) {
-  IMAGE_PATHS.push(getImageUrl(`./assets/crops/Crops${i}.png`));
+  IMAGE_PATHS.push(getCropUrl(`Crops${i}`));
 }
