@@ -1,5 +1,5 @@
 import * as r from "./renderer.ts";
-import * as c from "./config.ts";
+//import * as c from "./config.ts";
 import * as g from "./grid.ts";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -8,7 +8,7 @@ const test: HTMLHeadingElement = document.createElement("h1");
 test.innerHTML = "TEST";
 app.appendChild(test);
 
-const renderer = new r.P5Renderer(c.IMAGE_PATHS);
+const _renderer = new r.P5Renderer([]);
 
 const width = 3;
 const height = 3;
@@ -34,19 +34,19 @@ for (let i = 0; i < height; i++) {
   }
 }
 
-drawing();
+// drawing();
 
-async function drawing() {
-  await renderer.ready;
+// async function drawing() {
+//   await renderer.ready;
 
-  setInterval(() => {
-    console.log("drawing");
-    renderer.clear();
-    renderer.addImage(
-      c.IMAGE_PATHS[0],
-      Math.random() * 300,
-      Math.random() * 200,
-      20,
-    );
-  }, 1000);
-}
+//   setInterval(() => {
+//     console.log("drawing");
+//     renderer.clear();
+//     renderer.addImage(
+//       c.IMAGE_PATHS[0],
+//       Math.random() * 300,
+//       Math.random() * 200,
+//       20,
+//     );
+//   }, 1000);
+// }
