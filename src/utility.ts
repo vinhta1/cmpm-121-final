@@ -16,6 +16,10 @@ export function clamp(n: number, max: number, min: number) {
   return Math.max(min, Math.min(n, max));
 }
 
+export function distance(x1: number, y1: number, x2: number, y2: number) {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
 IMAGE_PATHS.push(new URL("./assets/test_pixel.png", import.meta.url).href);
 
 function getCropUrl(name: string) {
@@ -25,3 +29,5 @@ function getCropUrl(name: string) {
 for (let i = 1; i <= 33; i++) {
   IMAGE_PATHS.push(getCropUrl(`Crops${i}`));
 }
+
+IMAGE_PATHS.push(new URL("./assets/outline.png", import.meta.url).href);
