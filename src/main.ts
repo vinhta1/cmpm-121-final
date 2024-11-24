@@ -11,14 +11,18 @@ app.appendChild(title);
 const canvasElement: HTMLDivElement = document.querySelector(
   "#canvas-container",
 )!;
+app.appendChild(canvasElement);
+
+const tileInformation: HTMLDivElement = document.createElement("div");
+app.appendChild(tileInformation);
 
 const width = 10;
 const height = 5;
 
 const scale = 5;
 
-canvasElement.style.width = `${width * u.TILE_SIZE}px`;
-canvasElement.style.height = `${height * u.TILE_SIZE}px`;
+canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
+canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
 
 const renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
 
@@ -29,8 +33,8 @@ let playerY = 0;
 
 const playerReach = 1;
 
-let outlineX = 0;
-let outlineY = 0;
+let outlineX = -1;
+let outlineY = -1;
 
 function initializeGrid() {
   for (let i = 0; i < height; i++) {
@@ -83,11 +87,22 @@ function drawPlayer() {
   );
 }
 
+function displayCurrentTileInformation() {
+  if (outlineX != -1 && outlineY != -1) {
+    const tile: g.GridCell = grid.getCell(outlineX, outlineY);
+    tileInformation.innerHTML =
+      `Tile : (${tile.x},${tile.y}) Sun : ${tile.sun} Water : ${tile.water}`;
+  } else {
+    tileInformation.innerHTML = "No Tile Selected";
+  }
+}
+
 function refreshDisplay() {
   renderer.clear();
   createBackground();
   drawOutline();
   drawPlayer();
+  displayCurrentTileInformation();
 }
 
 document.addEventListener("keydown", (event: KeyboardEvent) => {
@@ -106,6 +121,15 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
   }
   playerX = u.clamp(playerX, width - 1, 0);
   playerY = u.clamp(playerY, height - 1, 0);
+
+  if (
+    u.distance(outlineX, outlineY, playerX, playerY) >
+      Math.sqrt(2) * playerReach
+  ) {
+    outlineX = -1;
+    outlineY = -1;
+  }
+
   refreshDisplay();
 });
 
@@ -115,7 +139,7 @@ document.addEventListener("mousemove", (e) => {
   let y = Math.floor((e.clientY - rect.top) / (u.TILE_SIZE * scale));
 
   if (
-    u.distance(x, y, Math.floor(playerX), Math.floor(playerY)) >
+    u.distance(x, y, playerX, playerY) >
       Math.sqrt(2) * playerReach
   ) {
     x = -1;

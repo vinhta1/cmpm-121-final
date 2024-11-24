@@ -44,7 +44,10 @@ export class P5Renderer implements Renderer {
         "#canvas-container",
       )!;
       const size: DOMRect = canvasElement.getBoundingClientRect();
-      const canvas = p.createCanvas(size.width, size.height);
+      const canvas = p.createCanvas(
+        size.width / this.scale,
+        size.height / this.scale,
+      );
       canvas.parent(canvasElement);
 
       const htmlCanvas = document.querySelector("canvas")!;
