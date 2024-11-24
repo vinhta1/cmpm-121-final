@@ -47,11 +47,21 @@ export class Grid {
         },${this.viewer[index + 1]}`,
       );
     }
-    this.viewer[index + 2] = GridCell.plantID;
-    this.viewer[index + 3] = GridCell.growthLevel;
-    this.viewer[index + 4] = GridCell.sun;
-    this.viewer[index + 5] = GridCell.water;
-    this.viewer[index + 6] = GridCell.backgroundID;
+    if (GridCell.plantID >= 0) {
+      this.viewer[index + 2] = GridCell.plantID;
+    }
+    if (GridCell.growthLevel >= 0) {
+      this.viewer[index + 3] = GridCell.growthLevel;
+    }
+    if (GridCell.sun >= 0) {
+      this.viewer[index + 4] = GridCell.sun;
+    }
+    if (GridCell.water >= 0) {
+      this.viewer[index + 5] = GridCell.water;
+    }
+    if (GridCell.backgroundID >= 0) {
+      this.viewer[index + 6] = GridCell.backgroundID;
+    }
   }
 
   public getCell(x: number, y: number): GridCell {

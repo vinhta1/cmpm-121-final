@@ -65,17 +65,33 @@ function initializeGrid() {
   }
 }
 
+function _setGridTestRandomPlants() {
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      grid.setCell({
+        x: j,
+        y: i,
+        plantID: Math.floor(Math.random() * 7),
+        growthLevel: Math.floor(Math.random() * 4),
+        sun: -1,
+        water: -1,
+        backgroundID: -1,
+      });
+    }
+  }
+}
+
 function newWeather() { // set the sun level and add to the water level
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       grid.setCell({
         x: j,
         y: i,
-        plantID: 0,
-        growthLevel: 0,
+        plantID: -1,
+        growthLevel: -1,
         sun: Math.floor(Math.random() * 9 + 1),
         water: grid.getCell(j, i).water + Math.floor(Math.random() * 5),
-        backgroundID: 2,
+        backgroundID: -1,
       });
     }
   }
@@ -87,11 +103,34 @@ function tileOffset(n: number) {
   return n * u.TILE_SIZE + u.TILE_SIZE / 2;
 }
 
-function createBackground() {
+function drawBackground() {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       renderer.addImage(
         u.IMAGE_PATHS[grid.getCell(j, i).backgroundID],
+        tileOffset(j),
+        tileOffset(i),
+        u.TILE_SIZE,
+      );
+    }
+  }
+}
+
+function drawPlants() {
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      const cell = grid.getCell(j, i);
+      if (cell.plantID == 0) {
+        continue; //no plant
+      }
+      let plantImage: string = u.IMAGE_PATHS[1]; // seed
+      if (cell.growthLevel > 0) {
+        plantImage =
+          u.IMAGE_PATHS[u.PLANT_MAP[cell.plantID].imageID + cell.growthLevel];
+      }
+
+      renderer.addImage(
+        plantImage,
         tileOffset(j),
         tileOffset(i),
         u.TILE_SIZE,
@@ -121,8 +160,13 @@ function drawPlayer() {
 function displayCurrentTileInformation() {
   if (outlineX >= 0 && outlineX < width && outlineY >= 0 && outlineY < height) {
     const tile: g.GridCell = grid.getCell(outlineX, outlineY);
-    tileInformation.innerHTML =
-      `Tile : (${tile.x},${tile.y}) Sun : ${tile.sun} Water : ${tile.water}`;
+    tileInformation.innerHTML = `
+    Tile: (${tile.x}, ${tile.y})<br>
+    Sun: ${tile.sun}<br>
+    Water: ${tile.water}<br>
+    Plant: ${tile.plantID > 0 ? u.PLANT_MAP[tile.plantID].name : "None"}<br>
+    Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}
+    `;
   } else {
     tileInformation.innerHTML = "No Tile Selected";
   }
@@ -130,7 +174,8 @@ function displayCurrentTileInformation() {
 
 function refreshDisplay() {
   renderer.clear();
-  createBackground();
+  drawBackground();
+  drawPlants();
   drawOutline();
   drawPlayer();
   displayCurrentTileInformation();
@@ -192,5 +237,6 @@ turnButton.addEventListener("click", () => {
 });
 
 initializeGrid();
+_setGridTestRandomPlants();
 newWeather();
 refreshDisplay();
