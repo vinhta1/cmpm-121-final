@@ -31,3 +31,4 @@ for (let i = 1; i <= 33; i++) {
 }
 
 IMAGE_PATHS.push(new URL("./assets/outline.png", import.meta.url).href);
+IMAGE_PATHS.push(new URL("./assets/outline2.png", import.meta.url).href);

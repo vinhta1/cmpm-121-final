@@ -47,6 +47,8 @@ const playerReach = 1;
 let outlineX = -1;
 let outlineY = -1;
 
+let outOfRange = false;
+
 function initializeGrid() {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -100,7 +102,7 @@ function createBackground() {
 
 function drawOutline() {
   renderer.addImage(
-    u.IMAGE_PATHS[34],
+    outOfRange ? u.IMAGE_PATHS[35] : u.IMAGE_PATHS[34],
     tileOffset(outlineX),
     tileOffset(outlineY),
     16,
@@ -117,7 +119,7 @@ function drawPlayer() {
 }
 
 function displayCurrentTileInformation() {
-  if (outlineX != -1 && outlineY != -1) {
+  if (outlineX >= 0 && outlineX < width && outlineY >= 0 && outlineY < height) {
     const tile: g.GridCell = grid.getCell(outlineX, outlineY);
     tileInformation.innerHTML =
       `Tile : (${tile.x},${tile.y}) Sun : ${tile.sun} Water : ${tile.water}`;
@@ -151,12 +153,12 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
   playerX = u.clamp(playerX, width - 1, 0);
   playerY = u.clamp(playerY, height - 1, 0);
 
+  outOfRange = false;
   if (
     u.distance(outlineX, outlineY, playerX, playerY) >
       Math.sqrt(2) * playerReach
   ) {
-    outlineX = -1;
-    outlineY = -1;
+    outOfRange = true;
   }
 
   refreshDisplay();
@@ -164,15 +166,15 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
 
 document.addEventListener("mousemove", (e) => {
   const rect = canvasElement.getBoundingClientRect();
-  let x = Math.floor((e.clientX - rect.left) / (u.TILE_SIZE * scale));
-  let y = Math.floor((e.clientY - rect.top) / (u.TILE_SIZE * scale));
+  const x = Math.floor((e.clientX - rect.left) / (u.TILE_SIZE * scale));
+  const y = Math.floor((e.clientY - rect.top) / (u.TILE_SIZE * scale));
 
+  outOfRange = false;
   if (
     u.distance(x, y, playerX, playerY) >
       Math.sqrt(2) * playerReach
   ) {
-    x = -1;
-    y = -1;
+    outOfRange = true;
   }
 
   if (outlineX != x || outlineY != y) {
