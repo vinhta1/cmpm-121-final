@@ -12,15 +12,6 @@ export const KEY_MAP: Record<string, string> = {
   ArrowRight: "right",
 };
 
-export const PLANT_MAP: Record<number, { name: string; imageID: number }> = {
-  1: { name: "turnip", imageID: 5 },
-  2: { name: "radish", imageID: 10 },
-  3: { name: "carrot", imageID: 15 },
-  4: { name: "potato", imageID: 20 },
-  5: { name: "onion", imageID: 25 },
-  6: { name: "spinach", imageID: 30 },
-};
-
 export function clamp(n: number, max: number, min: number) {
   return Math.max(min, Math.min(n, max));
 }

@@ -1,6 +1,7 @@
 import * as r from "./renderer.ts";
 import * as u from "./utility.ts";
 import * as g from "./grid.ts";
+import * as p from "./plants.ts";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -126,7 +127,7 @@ function drawPlants() {
       let plantImage: string = u.IMAGE_PATHS[1]; // seed
       if (cell.growthLevel > 0) {
         plantImage =
-          u.IMAGE_PATHS[u.PLANT_MAP[cell.plantID].imageID + cell.growthLevel];
+          u.IMAGE_PATHS[p.PLANT_MAP[cell.plantID].imageID + cell.growthLevel];
       }
 
       renderer.addImage(
@@ -164,7 +165,7 @@ function displayCurrentTileInformation() {
     Tile: (${tile.x}, ${tile.y})<br>
     Sun: ${tile.sun}<br>
     Water: ${tile.water}<br>
-    Plant: ${tile.plantID > 0 ? u.PLANT_MAP[tile.plantID].name : "None"}<br>
+    Plant: ${tile.plantID > 0 ? p.PLANT_MAP[tile.plantID].name : "None"}<br>
     Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}
     `;
   } else {
