@@ -11,3 +11,7 @@ body {
   height: 200px;
   background-color: lightblue;
 }
+
+#title {
+  margin-bottom: -10px;
+}

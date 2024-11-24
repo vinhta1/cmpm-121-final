@@ -5,15 +5,24 @@ import * as g from "./grid.ts";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 const title: HTMLHeadingElement = document.createElement("h1");
+title.id = "title";
 title.innerHTML = "TEST";
 app.appendChild(title);
+
+const currentDay: HTMLDivElement = document.createElement("h2");
+currentDay.innerHTML = "Day: 0";
+app.appendChild(currentDay);
+
+const turnButton: HTMLButtonElement = document.createElement("button");
+turnButton.innerHTML = "Next Day";
+app.appendChild(turnButton);
 
 const canvasElement: HTMLDivElement = document.querySelector(
   "#canvas-container",
 )!;
 app.appendChild(canvasElement);
 
-const tileInformation: HTMLDivElement = document.createElement("div");
+const tileInformation: HTMLElement = document.createElement("p");
 app.appendChild(tileInformation);
 
 const width = 10;
@@ -27,6 +36,8 @@ canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
 const renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
 
 const grid = new g.Grid(width, height);
+
+let currentTurn = 0;
 
 let playerX = 0;
 let playerY = 0;
@@ -51,6 +62,24 @@ function initializeGrid() {
     }
   }
 }
+
+function newWeather() { // set the sun level and add to the water level
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      grid.setCell({
+        x: j,
+        y: i,
+        plantID: 0,
+        growthLevel: 0,
+        sun: Math.floor(Math.random() * 9 + 1),
+        water: grid.getCell(j, i).water + Math.floor(Math.random() * 5),
+        backgroundID: 2,
+      });
+    }
+  }
+}
+
+function updateGrid() {} // perform changes to the grid based on previous turn configuration
 
 function tileOffset(n: number) {
   return n * u.TILE_SIZE + u.TILE_SIZE / 2;
@@ -153,5 +182,13 @@ document.addEventListener("mousemove", (e) => {
   }
 });
 
+turnButton.addEventListener("click", () => {
+  currentTurn++;
+  currentDay.innerHTML = `Day: ${currentTurn}`;
+  updateGrid();
+  newWeather();
+});
+
 initializeGrid();
+newWeather();
 refreshDisplay();
