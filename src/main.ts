@@ -98,17 +98,76 @@ function newWeather() { // set the sun level and add to the water level
   }
 }
 
-function updateCell(cell: g.GridCell, _neighbors: g.GridCell[]) {
-  //const rule = p.PLANT_RULE[cell.plantID];
+function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
+  if (cell.plantID == 0) {
+    return;
+  }
+  const rule = p.PLANT_RULE[cell.plantID];
+  if (cell.sun < rule.sun && rule.sun != -1) {
+    return;
+  }
+  if (cell.water < rule.water && rule.water != -1) {
+    return;
+  }
+  let all = 0;
+  let same = 0;
+  let diff = 0;
+  neighbors.forEach((nCell) => {
+    if (nCell.plantID != 0) {
+      if (nCell.plantID == cell.plantID) {
+        same++;
+      }
+      if (nCell.plantID != cell.plantID) {
+        diff++;
+      }
+      all++;
+    }
+  });
 
+  if (
+    (all < rule.anyNeighbors.min && rule.anyNeighbors.min != -1) ||
+    (all > rule.anyNeighbors.max && rule.anyNeighbors.max != -1)
+  ) {
+    return;
+  }
+  if (
+    (same < rule.sameNeighbors.min && rule.sameNeighbors.min != -1) ||
+    (same > rule.sameNeighbors.max && rule.sameNeighbors.max != -1)
+  ) {
+    return;
+  }
+  if (
+    (diff < rule.diffNeighbors.min && rule.diffNeighbors.min != -1) ||
+    (diff > rule.diffNeighbors.max && rule.diffNeighbors.max != -1)
+  ) {
+    return;
+  }
+
+  cell.water -= rule.water;
   cell.growthLevel = Math.min(cell.growthLevel + 1, 3);
   grid.setCell(cell);
+}
+
+function getSurroundingCells(x: number, y: number) {
+  const cells = [];
+
+  for (let i = -1; i <= 1; i++) {
+    for (let j = -1; j <= 1; j++) {
+      if (i == 0 && j == 0) continue;
+      const dX = x + i;
+      const dY = y + j;
+      if (dX >= 0 && dX < width && dY >= 0 && dY < height) {
+        cells.push(grid.getCell(dX, dY));
+      }
+    }
+  }
+  return cells;
 }
 
 function updateGrid() { // perform changes to the grid based on previous turn configuration
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
-      updateCell(grid.getCell(j, i), []);
+      updateCell(grid.getCell(j, i), getSurroundingCells(j, i));
     }
   }
 }
