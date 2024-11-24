@@ -98,7 +98,20 @@ function newWeather() { // set the sun level and add to the water level
   }
 }
 
-function updateGrid() {} // perform changes to the grid based on previous turn configuration
+function updateCell(cell: g.GridCell, _neighbors: g.GridCell[]) {
+  //const rule = p.PLANT_RULE[cell.plantID];
+
+  cell.growthLevel = Math.min(cell.growthLevel + 1, 3);
+  grid.setCell(cell);
+}
+
+function updateGrid() { // perform changes to the grid based on previous turn configuration
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      updateCell(grid.getCell(j, i), []);
+    }
+  }
+}
 
 function tileOffset(n: number) {
   return n * u.TILE_SIZE + u.TILE_SIZE / 2;
@@ -235,6 +248,7 @@ turnButton.addEventListener("click", () => {
   currentDay.innerHTML = `Day: ${currentTurn}`;
   updateGrid();
   newWeather();
+  refreshDisplay();
 });
 
 initializeGrid();
