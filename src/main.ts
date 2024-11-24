@@ -27,6 +27,8 @@ const grid = new g.Grid(width, height);
 let playerX = 0;
 let playerY = 0;
 
+const playerSpeed = 5;
+
 const playerReach = 1;
 
 let outlineX = 0;
@@ -77,8 +79,8 @@ function drawOutline() {
 function drawPlayer() {
   renderer.addImage(
     u.IMAGE_PATHS[0],
-    tileOffset(playerX),
-    tileOffset(playerY),
+    Math.floor(tileOffset(playerX)),
+    Math.floor(tileOffset(playerY)),
     8,
   );
 }
@@ -90,23 +92,34 @@ function refreshDisplay() {
   drawPlayer();
 }
 
-document.addEventListener("keydown", (event: KeyboardEvent) => {
-  const key = event.key.toLowerCase();
-  if (u.KEY_MAP[key] == "up") {
-    playerY--;
+const keysPressed: Record<string, boolean> = {};
+
+let lastTime = 0;
+function gameLoop(time: number) {
+  const deltaTime = (time - lastTime) / 1000;
+  lastTime = time;
+  if (keysPressed["up"]) {
+    playerY -= playerSpeed * deltaTime;
   }
-  if (u.KEY_MAP[key] == "down") {
-    playerY++;
+  if (keysPressed["down"]) {
+    playerY += playerSpeed * deltaTime;
   }
-  if (u.KEY_MAP[key] == "left") {
-    playerX--;
+  if (keysPressed["left"]) {
+    playerX -= playerSpeed * deltaTime;
   }
-  if (u.KEY_MAP[key] == "right") {
-    playerX++;
+  if (keysPressed["right"]) {
+    playerX += playerSpeed * deltaTime;
   }
-  playerX = u.clamp(playerX, width - 1, 0);
-  playerY = u.clamp(playerY, height - 1, 0);
   refreshDisplay();
+  requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener("keydown", (event: KeyboardEvent) => {
+  keysPressed[u.KEY_MAP[event.key.toLocaleLowerCase()]] = true;
+});
+
+document.addEventListener("keyup", (event: KeyboardEvent) => {
+  keysPressed[u.KEY_MAP[event.key.toLocaleLowerCase()]] = false;
 });
 
 document.addEventListener("mousemove", (e) => {
@@ -115,7 +128,7 @@ document.addEventListener("mousemove", (e) => {
   let y = Math.floor((e.clientY - rect.top) / (u.TILE_SIZE * scale));
 
   if (
-    u.distance(x, y, Math.floor(playerX), Math.floor(playerY)) >
+    u.distance(x, y, playerX, playerY) >
       Math.sqrt(2) * playerReach
   ) {
     x = -1;
@@ -125,9 +138,8 @@ document.addEventListener("mousemove", (e) => {
   if (outlineX != x || outlineY != y) {
     outlineX = x;
     outlineY = y;
-    refreshDisplay();
   }
 });
 
 initializeGrid();
-refreshDisplay();
+requestAnimationFrame(gameLoop);
