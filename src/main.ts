@@ -18,6 +18,9 @@ const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = "Next Day";
 app.appendChild(turnButton);
 
+const plantOptions: HTMLDivElement = document.createElement("div");
+app.appendChild(plantOptions);
+
 const canvasElement: HTMLDivElement = document.querySelector(
   "#canvas-container",
 )!;
@@ -50,18 +53,14 @@ let outlineY = -1;
 
 let outOfRange = false;
 
+let currentPlant = 1;
+
 function initializeGrid() {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
-      grid.setCell({
-        x: j,
-        y: i,
-        plantID: 0,
-        growthLevel: 0,
-        sun: 0,
-        water: 0,
-        backgroundID: 2,
-      });
+      const cell = grid.getCell(j, i);
+      cell.backgroundID = 2;
+      grid.setCell(cell);
     }
   }
 }
@@ -69,31 +68,42 @@ function initializeGrid() {
 function _setGridTestRandomPlants() {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
-      grid.setCell({
-        x: j,
-        y: i,
-        plantID: Math.floor(Math.random() * 7),
-        growthLevel: Math.floor(Math.random() * 4),
-        sun: -1,
-        water: -1,
-        backgroundID: -1,
-      });
+      const cell = grid.getCell(j, i);
+      cell.plantID = Math.floor(Math.random() * 7);
+      cell.growthLevel = Math.floor(Math.random() * 4);
+      grid.setCell(cell);
     }
   }
+}
+
+function createPlantOptionButton(plantID: number) {
+  const button = document.createElement("button");
+  button.innerHTML = p.PLANT_MAP[plantID].name;
+  button.addEventListener("click", () => {
+    currentPlant = plantID;
+  });
+  plantOptions.appendChild(button);
+}
+
+function clickCell() {
+  if (outOfRange) return;
+  const cell = grid.getCell(outlineX, outlineY);
+  if (cell.plantID == 0) {
+    cell.plantID = currentPlant;
+  } else {
+    cell.plantID = 0;
+  }
+  grid.setCell(cell);
+  refreshDisplay();
 }
 
 function newWeather() { // set the sun level and add to the water level
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
-      grid.setCell({
-        x: j,
-        y: i,
-        plantID: -1,
-        growthLevel: -1,
-        sun: Math.floor(Math.random() * 9 + 1),
-        water: grid.getCell(j, i).water + Math.floor(Math.random() * 5),
-        backgroundID: -1,
-      });
+      const cell = grid.getCell(j, i);
+      cell.sun = Math.floor(Math.random() * 9 + 1);
+      cell.water = cell.water + Math.floor(Math.random() * 5);
+      grid.setCell(cell);
     }
   }
 }
@@ -302,6 +312,8 @@ document.addEventListener("mousemove", (e) => {
   }
 });
 
+canvasElement.addEventListener("click", clickCell);
+
 turnButton.addEventListener("click", () => {
   currentTurn++;
   currentDay.innerHTML = `Day: ${currentTurn}`;
@@ -310,7 +322,9 @@ turnButton.addEventListener("click", () => {
   refreshDisplay();
 });
 
+for (let i = 1; i <= 6; i++) {
+  createPlantOptionButton(i);
+}
 initializeGrid();
-_setGridTestRandomPlants();
 newWeather();
 refreshDisplay();
