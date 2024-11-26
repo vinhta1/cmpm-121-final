@@ -11,6 +11,7 @@ export const PLANT_MAP: Record<number, { name: string; imageID: number }> = {
 export interface PlantRule {
   sun: number; // how much sun to grow next turn
   water: number; // how much water to grow next turn
+  growthrate: number;
   anyNeighbors: { min: number; max: number }; // how many any plant neighbors inbetween min and max needed to grow
   sameNeighbors: { min: number; max: number }; // how many same plant neighbors inbetween min and max needed to grow
   diffNeighbors: { min: number; max: number }; // how many diff plant neighbors inbetween min and max needed to grow
@@ -20,6 +21,7 @@ export const PLANT_RULE: Record<number, PlantRule> = {
   1: {
     sun: 1,
     water: 1,
+    growthrate: 0.5,
     anyNeighbors: { min: -1, max: -1 },
     sameNeighbors: { min: -1, max: -1 },
     diffNeighbors: { min: -1, max: -1 },
@@ -27,6 +29,7 @@ export const PLANT_RULE: Record<number, PlantRule> = {
   2: {
     sun: 1,
     water: 1,
+    growthrate: 0.75,
     anyNeighbors: { min: -1, max: -1 },
     sameNeighbors: { min: -1, max: -1 },
     diffNeighbors: { min: -1, max: -1 },
@@ -34,6 +37,7 @@ export const PLANT_RULE: Record<number, PlantRule> = {
   3: {
     sun: 1,
     water: 1,
+    growthrate: 1,
     anyNeighbors: { min: -1, max: -1 },
     sameNeighbors: { min: -1, max: -1 },
     diffNeighbors: { min: -1, max: -1 },
@@ -41,6 +45,7 @@ export const PLANT_RULE: Record<number, PlantRule> = {
   4: {
     sun: 1,
     water: 1,
+    growthrate: 1.25,
     anyNeighbors: { min: -1, max: -1 },
     sameNeighbors: { min: -1, max: -1 },
     diffNeighbors: { min: -1, max: -1 },
@@ -48,6 +53,7 @@ export const PLANT_RULE: Record<number, PlantRule> = {
   5: {
     sun: 1,
     water: 1,
+    growthrate: 1.5,
     anyNeighbors: { min: -1, max: -1 },
     sameNeighbors: { min: -1, max: -1 },
     diffNeighbors: { min: -1, max: -1 },
@@ -55,6 +61,7 @@ export const PLANT_RULE: Record<number, PlantRule> = {
   6: {
     sun: 1,
     water: 1,
+    growthrate: 2,
     anyNeighbors: { min: -1, max: -1 },
     sameNeighbors: { min: -1, max: -1 },
     diffNeighbors: { min: -1, max: -1 },

@@ -14,10 +14,6 @@ const currentDay: HTMLDivElement = document.createElement("h2");
 currentDay.innerHTML = "Day: 0";
 app.appendChild(currentDay);
 
-const winText: HTMLDivElement = document.createElement("h1");
-winText.innerHTML = "";
-app.appendChild(winText);
-
 const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = "Next Day";
 app.appendChild(turnButton);
@@ -76,6 +72,7 @@ function _setGridTestRandomPlants() {
       const cell = grid.getCell(j, i);
       cell.plantID = Math.floor(Math.random() * 7);
       cell.growthLevel = Math.floor(Math.random() * 4);
+      cell.age = 0;
       grid.setCell(cell);
     }
   }
@@ -96,22 +93,32 @@ function createPlantOptionButton(plantID: number) {
 
 function clickCell() {
   if (outOfRange) return;
+
   const cell = grid.getCell(outlineX, outlineY);
-  if (cell.plantID == 0) {
+
+  // CASE 1: If the plant is fully grown, harvest it and leave the cell empty
+  if (cell.plantID > 0 && cell.growthLevel === 3) {
+    console.log(`Harvested plant at (${cell.x}, ${cell.y})!`);
+
+    //handleHarvest(cell.plantID);
+
+    cell.plantID = 0; // Remove the plant
+    cell.growthLevel = 0; // Reset growth level
+    cell.age = 0;
+    cell.sun = 0;
+    cell.water = 0;
+
+    // CASE 2: If the player clicks on an empty cell, allow planting a new crop
+  } else if (cell.plantID === 0) {
     cell.plantID = currentPlant;
   } else {
     cell.plantID = 0;
-    harvestCount++;
   }
   grid.setCell(cell);
   refreshDisplay();
-  if (harvestCount == 10) {
-    winText.innerHTML = "You Win";
-  }
 }
 
-function newWeather() {
-  // set the sun level and add to the water level
+function newWeather() { // set the sun level and add to the water level
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const cell = grid.getCell(j, i);
@@ -123,53 +130,53 @@ function newWeather() {
 }
 
 function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
-  if (cell.plantID == 0) {
-    return;
-  }
-  const rule = p.PLANT_RULE[cell.plantID];
-  if (cell.sun < rule.sun && rule.sun != -1) {
-    return;
-  }
-  if (cell.water < rule.water && rule.water != -1) {
-    return;
-  }
-  let all = 0;
-  let same = 0;
-  let diff = 0;
-  neighbors.forEach((nCell) => {
-    if (nCell.plantID != 0) {
-      if (nCell.plantID == cell.plantID) {
-        same++;
-      }
-      if (nCell.plantID != cell.plantID) {
-        diff++;
-      }
-      all++;
-    }
-  });
+  if (cell.plantID == 0) return; // Skip empty cells.
 
-  if (
-    (all < rule.anyNeighbors.min && rule.anyNeighbors.min != -1) ||
-    (all > rule.anyNeighbors.max && rule.anyNeighbors.max != -1)
-  ) {
-    return;
-  }
-  if (
-    (same < rule.sameNeighbors.min && rule.sameNeighbors.min != -1) ||
-    (same > rule.sameNeighbors.max && rule.sameNeighbors.max != -1)
-  ) {
-    return;
-  }
-  if (
-    (diff < rule.diffNeighbors.min && rule.diffNeighbors.min != -1) ||
-    (diff > rule.diffNeighbors.max && rule.diffNeighbors.max != -1)
-  ) {
-    return;
+  const plantRule = p.PLANT_RULE[cell.plantID];
+  if (!plantRule) return; // Skip if no growth rule exists.
+
+  const samePlantNeighbors = neighbors.filter((n) =>
+    n.plantID === cell.plantID
+  );
+  let adjustedGrowthRate = plantRule.growthrate;
+
+  // **Step 1: Adjust for Neighbor Conditions**
+  if (samePlantNeighbors.length >= 1 && samePlantNeighbors.length <= 2) {
+    const neighborBoostMultiplier = 1.5;
+    adjustedGrowthRate *= neighborBoostMultiplier;
+  } else if (samePlantNeighbors.length >= 3) {
+    const competitionFactor = 2; // Halve growth rate.
+    adjustedGrowthRate /= competitionFactor;
   }
 
-  cell.water -= rule.water;
-  cell.growthLevel = Math.min(cell.growthLevel + 1, 3);
+  if (cell.sun > 5) {
+    const sunBoostMultiplier = 1.1; // 10% boost for enough sun energy.
+    adjustedGrowthRate *= sunBoostMultiplier;
+    console.log("sun boost", adjustedGrowthRate);
+  }
+
+  if (cell.water >= 5) {
+    const waterBoostMultiplier = 1.05; // 5% boost for water sufficiency.
+    adjustedGrowthRate *= waterBoostMultiplier;
+    console.log("water boost", adjustedGrowthRate);
+    cell.water -= 1; // Absorb 1 unit of water per turn.
+  }
+
+  cell.age++;
+
+  const requiredTurnsPerStage = 1 / adjustedGrowthRate;
+  const progress = cell.age / requiredTurnsPerStage;
+  cell.growthLevel = Math.min(Math.floor(progress), 3); // Maximum level = 3.
+
   grid.setCell(cell);
+
+  console.log(
+    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${samePlantNeighbors.length}, Sun: ${cell.sun}, Water: ${
+      cell.water.toFixed(1)
+    }, Adjusted GrowthRate: ${
+      adjustedGrowthRate.toFixed(2)
+    }, GrowthLevel: ${cell.growthLevel}`,
+  );
 }
 
 function getSurroundingCells(x: number, y: number) {
@@ -188,8 +195,8 @@ function getSurroundingCells(x: number, y: number) {
   return cells;
 }
 
-function updateGrid() {
-  // perform changes to the grid based on previous turn configuration
+function updateGrid() { // perform changes to the grid based on previous turn configuration
+  console.log("Updating grid for a new turn...");
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       updateCell(grid.getCell(j, i), getSurroundingCells(j, i));
@@ -218,16 +225,21 @@ function drawPlants() {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const cell = grid.getCell(j, i);
-      if (cell.plantID == 0) {
-        continue; //no plant
-      }
-      let plantImage: string = u.IMAGE_PATHS[1]; // seed
+      if (cell.plantID == 0) continue; // Skip empty cells
+
+      // Display based on the current growth level
+      let plantImage: string = u.IMAGE_PATHS[1]; // Default to seed
       if (cell.growthLevel > 0) {
         plantImage =
           u.IMAGE_PATHS[p.PLANT_MAP[cell.plantID].imageID + cell.growthLevel];
       }
 
-      renderer.addImage(plantImage, tileOffset(j), tileOffset(i), u.TILE_SIZE);
+      renderer.addImage(
+        plantImage,
+        tileOffset(j), // Horizontal position
+        tileOffset(i), // Vertical position
+        u.TILE_SIZE,
+      );
     }
   }
 }
@@ -253,12 +265,17 @@ function drawPlayer() {
 function displayCurrentTileInformation() {
   if (outlineX >= 0 && outlineX < width && outlineY >= 0 && outlineY < height) {
     const tile: g.GridCell = grid.getCell(outlineX, outlineY);
+
+    //const plantRule = p.PLANT_RULE[tile.plantID];
+    const progress = ((tile.growthLevel / 3) * 100).toFixed(2);
+
     tileInformation.innerHTML = `
-    Tile: (${tile.x}, ${tile.y})<br>
-    Sun: ${tile.sun}<br>
-    Water: ${tile.water}<br>
-    Plant: ${tile.plantID > 0 ? p.PLANT_MAP[tile.plantID].name : "None"}<br>
-    Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}
+      Tile: (${tile.x}, ${tile.y})<br>
+      Sun: ${tile.sun}<br>
+      Water: ${tile.water}<br>
+      Plant: ${tile.plantID > 0 ? p.PLANT_MAP[tile.plantID].name : "None"}<br>
+      Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}<br>
+      Progress: ${progress}%
     `;
   } else {
     tileInformation.innerHTML = "No Tile Selected";

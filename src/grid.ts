@@ -6,9 +6,10 @@ export interface GridCell {
   sun: number;
   water: number;
   backgroundID: number;
+  age: number;
 }
 
-const OFFSET = 7;
+const OFFSET = 8;
 
 export class Grid {
   private buffer: ArrayBuffer;
@@ -34,6 +35,7 @@ export class Grid {
       this.viewer[i * OFFSET + 4] = 0;
       this.viewer[i * OFFSET + 5] = 0;
       this.viewer[i * OFFSET + 6] = 0;
+      this.viewer[i * OFFSET + 7] = 0;
     }
   }
   public setCell(GridCell: GridCell) {
@@ -62,6 +64,9 @@ export class Grid {
     if (GridCell.backgroundID >= 0) {
       this.viewer[index + 6] = GridCell.backgroundID;
     }
+    if (GridCell.age >= 0) {
+      this.viewer[index + 7] = GridCell.age;
+    }
   }
 
   public getCell(x: number, y: number): GridCell {
@@ -81,6 +86,7 @@ export class Grid {
       sun: this.viewer[index + 4],
       water: this.viewer[index + 5],
       backgroundID: this.viewer[index + 6],
+      age: this.viewer[index + 7],
     };
   }
 }
