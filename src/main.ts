@@ -14,6 +14,10 @@ const currentDay: HTMLDivElement = document.createElement("h2");
 currentDay.innerHTML = "Day: 0";
 app.appendChild(currentDay);
 
+const winText: HTMLDivElement = document.createElement("h1");
+winText.innerHTML = "";
+app.appendChild(winText);
+
 const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = "Next Day";
 app.appendChild(turnButton);
@@ -21,9 +25,8 @@ app.appendChild(turnButton);
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
-const canvasElement: HTMLDivElement = document.querySelector(
-  "#canvas-container",
-)!;
+const canvasElement: HTMLDivElement =
+  document.querySelector("#canvas-container")!;
 app.appendChild(canvasElement);
 
 const tileInformation: HTMLElement = document.createElement("p");
@@ -33,6 +36,8 @@ const width = 10;
 const height = 5;
 
 const scale = 5;
+
+let harvestCount = 0;
 
 canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
 canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
@@ -76,6 +81,10 @@ function _setGridTestRandomPlants() {
   }
 }
 
+// if certain squares are near each other (like 3) plants do grow
+
+// if harvest certain amount plants like 10
+
 function createPlantOptionButton(plantID: number) {
   const button = document.createElement("button");
   button.innerHTML = p.PLANT_MAP[plantID].name;
@@ -92,12 +101,17 @@ function clickCell() {
     cell.plantID = currentPlant;
   } else {
     cell.plantID = 0;
+    harvestCount++;
   }
   grid.setCell(cell);
   refreshDisplay();
+  if (harvestCount == 10) {
+    winText.innerHTML = "You Win";
+  }
 }
 
-function newWeather() { // set the sun level and add to the water level
+function newWeather() {
+  // set the sun level and add to the water level
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const cell = grid.getCell(j, i);
@@ -174,7 +188,8 @@ function getSurroundingCells(x: number, y: number) {
   return cells;
 }
 
-function updateGrid() { // perform changes to the grid based on previous turn configuration
+function updateGrid() {
+  // perform changes to the grid based on previous turn configuration
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       updateCell(grid.getCell(j, i), getSurroundingCells(j, i));
@@ -193,7 +208,7 @@ function drawBackground() {
         u.IMAGE_PATHS[grid.getCell(j, i).backgroundID],
         tileOffset(j),
         tileOffset(i),
-        u.TILE_SIZE,
+        u.TILE_SIZE
       );
     }
   }
@@ -212,12 +227,7 @@ function drawPlants() {
           u.IMAGE_PATHS[p.PLANT_MAP[cell.plantID].imageID + cell.growthLevel];
       }
 
-      renderer.addImage(
-        plantImage,
-        tileOffset(j),
-        tileOffset(i),
-        u.TILE_SIZE,
-      );
+      renderer.addImage(plantImage, tileOffset(j), tileOffset(i), u.TILE_SIZE);
     }
   }
 }
@@ -227,7 +237,7 @@ function drawOutline() {
     outOfRange ? u.IMAGE_PATHS[35] : u.IMAGE_PATHS[34],
     tileOffset(outlineX),
     tileOffset(outlineY),
-    16,
+    16
   );
 }
 
@@ -236,7 +246,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-    8,
+    8
   );
 }
 
@@ -284,7 +294,7 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
   outOfRange = false;
   if (
     u.distance(outlineX, outlineY, playerX, playerY) >
-      Math.sqrt(2) * playerReach
+    Math.sqrt(2) * playerReach
   ) {
     outOfRange = true;
   }
@@ -298,10 +308,7 @@ document.addEventListener("mousemove", (e) => {
   const y = Math.floor((e.clientY - rect.top) / (u.TILE_SIZE * scale));
 
   outOfRange = false;
-  if (
-    u.distance(x, y, playerX, playerY) >
-      Math.sqrt(2) * playerReach
-  ) {
+  if (u.distance(x, y, playerX, playerY) > Math.sqrt(2) * playerReach) {
     outOfRange = true;
   }
 
