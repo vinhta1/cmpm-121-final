@@ -10,6 +10,11 @@ title.id = "title";
 title.innerHTML = "TEST";
 app.appendChild(title);
 
+const winText: HTMLDivElement = document.createElement("h1");
+winText.innerHTML = "";
+winText.style.color = "green";
+app.appendChild(winText);
+
 const currentDay: HTMLDivElement = document.createElement("h2");
 currentDay.innerHTML = "Day: 0";
 app.appendChild(currentDay);
@@ -21,8 +26,9 @@ app.appendChild(turnButton);
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
-const canvasElement: HTMLDivElement =
-  document.querySelector("#canvas-container")!;
+const canvasElement: HTMLDivElement = document.querySelector(
+  "#canvas-container",
+)!;
 app.appendChild(canvasElement);
 
 const tileInformation: HTMLElement = document.createElement("p");
@@ -33,7 +39,7 @@ const height = 5;
 
 const scale = 5;
 
-let harvestCount = 0;
+//let harvestCount = 0;
 
 canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
 canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
@@ -78,9 +84,35 @@ function _setGridTestRandomPlants() {
   }
 }
 
-// if certain squares are near each other (like 3) plants do grow
+const gameInventory: Record<string, number> = {}; // A simple global object to track collected produce
 
-// if harvest certain amount plants like 10
+function handleHarvest(plantID: number) {
+  const plantName = p.PLANT_MAP[plantID].name;
+
+  // Add the harvested plant to the player's inventory
+  if (!gameInventory[plantName]) {
+    gameInventory[plantName] = 0; // Initialize inventory for the plant
+  }
+  gameInventory[plantName]++;
+  console.log(`Added 1 ${plantName} to your inventory!`);
+  console.log("Current Inventory:", gameInventory);
+
+  checkWinCondition();
+}
+
+function checkWinCondition() { //can be used to keep track of win conditions across levels
+  const totalHarvested = Object.keys(gameInventory).reduce(
+    (sum, key) => sum + gameInventory[key],
+    0,
+  );
+
+  if (totalHarvested >= 12) {
+    console.log("Win condition met!");
+    winText.innerHTML = "You Win!";
+    return true;
+  }
+  return false;
+}
 
 function createPlantOptionButton(plantID: number) {
   const button = document.createElement("button");
@@ -100,7 +132,7 @@ function clickCell() {
   if (cell.plantID > 0 && cell.growthLevel === 3) {
     console.log(`Harvested plant at (${cell.x}, ${cell.y})!`);
 
-    //handleHarvest(cell.plantID);
+    handleHarvest(cell.plantID);
 
     cell.plantID = 0; // Remove the plant
     cell.growthLevel = 0; // Reset growth level
@@ -215,7 +247,7 @@ function drawBackground() {
         u.IMAGE_PATHS[grid.getCell(j, i).backgroundID],
         tileOffset(j),
         tileOffset(i),
-        u.TILE_SIZE
+        u.TILE_SIZE,
       );
     }
   }
@@ -249,7 +281,7 @@ function drawOutline() {
     outOfRange ? u.IMAGE_PATHS[35] : u.IMAGE_PATHS[34],
     tileOffset(outlineX),
     tileOffset(outlineY),
-    16
+    16,
   );
 }
 
@@ -258,7 +290,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-    8
+    8,
   );
 }
 
@@ -311,7 +343,7 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
   outOfRange = false;
   if (
     u.distance(outlineX, outlineY, playerX, playerY) >
-    Math.sqrt(2) * playerReach
+      Math.sqrt(2) * playerReach
   ) {
     outOfRange = true;
   }
