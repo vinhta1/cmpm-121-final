@@ -1,13 +1,13 @@
 {
-  "hash": "c914916c",
-  "configHash": "dec03a91",
-  "lockfileHash": "e3b0c442",
-  "browserHash": "2fba574c",
+  "hash": "fb35fee9",
+  "configHash": "73754dfb",
+  "lockfileHash": "38802b54",
+  "browserHash": "94036e1f",
   "optimized": {
     "p5": {
       "src": "../../node_modules/.deno/p5@1.11.1/node_modules/p5/lib/p5.min.js",
       "file": "p5.js",
-      "fileHash": "6e8bf2cc",
+      "fileHash": "345262ab",
       "needsInterop": true
     }
   },

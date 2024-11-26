@@ -13,6 +13,10 @@ app.appendChild(title);
 const winText: HTMLDivElement = document.createElement("h1");
 winText.innerHTML = "";
 winText.style.color = "green";
+winText.style.fontSize = "50px";
+winText.style.left = "200px"; // X-coordinate
+winText.style.top = "500px"; // Y-coordinate
+
 app.appendChild(winText);
 
 const currentDay: HTMLDivElement = document.createElement("h2");
@@ -26,9 +30,8 @@ app.appendChild(turnButton);
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
-const canvasElement: HTMLDivElement = document.querySelector(
-  "#canvas-container",
-)!;
+const canvasElement: HTMLDivElement =
+  document.querySelector("#canvas-container")!;
 app.appendChild(canvasElement);
 
 const tileInformation: HTMLElement = document.createElement("p");
@@ -100,10 +103,11 @@ function handleHarvest(plantID: number) {
   checkWinCondition();
 }
 
-function checkWinCondition() { //can be used to keep track of win conditions across levels
+function checkWinCondition() {
+  //can be used to keep track of win conditions across levels
   const totalHarvested = Object.keys(gameInventory).reduce(
     (sum, key) => sum + gameInventory[key],
-    0,
+    0
   );
 
   if (totalHarvested >= 12) {
@@ -150,7 +154,8 @@ function clickCell() {
   refreshDisplay();
 }
 
-function newWeather() { // set the sun level and add to the water level
+function newWeather() {
+  // set the sun level and add to the water level
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const cell = grid.getCell(j, i);
@@ -167,14 +172,14 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
   const plantRule = p.PLANT_RULE[cell.plantID];
   if (!plantRule) return; // Skip if no growth rule exists.
 
-  const samePlantNeighbors = neighbors.filter((n) =>
-    n.plantID === cell.plantID
+  const samePlantNeighbors = neighbors.filter(
+    (n) => n.plantID === cell.plantID
   );
   let adjustedGrowthRate = plantRule.growthrate;
 
   // **Step 1: Adjust for Neighbor Conditions**
   if (samePlantNeighbors.length >= 1 && samePlantNeighbors.length <= 2) {
-    const neighborBoostMultiplier = 1.5;
+    const neighborBoostMultiplier = 1.75;
     adjustedGrowthRate *= neighborBoostMultiplier;
   } else if (samePlantNeighbors.length >= 3) {
     const competitionFactor = 2; // Halve growth rate.
@@ -182,13 +187,13 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
   }
 
   if (cell.sun > 5) {
-    const sunBoostMultiplier = 1.1; // 10% boost for enough sun energy.
+    const sunBoostMultiplier = 1.5; // 10% boost for enough sun energy.
     adjustedGrowthRate *= sunBoostMultiplier;
     console.log("sun boost", adjustedGrowthRate);
   }
 
   if (cell.water >= 5) {
-    const waterBoostMultiplier = 1.05; // 5% boost for water sufficiency.
+    const waterBoostMultiplier = 1.25; // 5% boost for water sufficiency.
     adjustedGrowthRate *= waterBoostMultiplier;
     console.log("water boost", adjustedGrowthRate);
     cell.water -= 1; // Absorb 1 unit of water per turn.
@@ -196,18 +201,24 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
 
   cell.age++;
 
-  const requiredTurnsPerStage = 1 / adjustedGrowthRate;
-  const progress = cell.age / requiredTurnsPerStage;
+  const requiredTurnsPerStage = adjustedGrowthRate;
+  const progress = cell.age * requiredTurnsPerStage;
+  const originalGrowth = cell.growthLevel;
   cell.growthLevel = Math.min(Math.floor(progress), 3); // Maximum level = 3.
+  if (originalGrowth > cell.growthLevel) {
+    cell.growthLevel = originalGrowth;
+  }
 
   grid.setCell(cell);
 
   console.log(
-    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${samePlantNeighbors.length}, Sun: ${cell.sun}, Water: ${
-      cell.water.toFixed(1)
-    }, Adjusted GrowthRate: ${
-      adjustedGrowthRate.toFixed(2)
-    }, GrowthLevel: ${cell.growthLevel}`,
+    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${
+      samePlantNeighbors.length
+    }, Sun: ${cell.sun}, Water: ${cell.water.toFixed(
+      1
+    )}, Adjusted GrowthRate: ${adjustedGrowthRate.toFixed(2)}, GrowthLevel: ${
+      cell.growthLevel
+    }`
   );
 }
 
@@ -227,7 +238,8 @@ function getSurroundingCells(x: number, y: number) {
   return cells;
 }
 
-function updateGrid() { // perform changes to the grid based on previous turn configuration
+function updateGrid() {
+  // perform changes to the grid based on previous turn configuration
   console.log("Updating grid for a new turn...");
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -247,7 +259,7 @@ function drawBackground() {
         u.IMAGE_PATHS[grid.getCell(j, i).backgroundID],
         tileOffset(j),
         tileOffset(i),
-        u.TILE_SIZE,
+        u.TILE_SIZE
       );
     }
   }
@@ -270,7 +282,7 @@ function drawPlants() {
         plantImage,
         tileOffset(j), // Horizontal position
         tileOffset(i), // Vertical position
-        u.TILE_SIZE,
+        u.TILE_SIZE
       );
     }
   }
@@ -281,7 +293,7 @@ function drawOutline() {
     outOfRange ? u.IMAGE_PATHS[35] : u.IMAGE_PATHS[34],
     tileOffset(outlineX),
     tileOffset(outlineY),
-    16,
+    16
   );
 }
 
@@ -290,7 +302,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-    8,
+    8
   );
 }
 
@@ -343,7 +355,7 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
   outOfRange = false;
   if (
     u.distance(outlineX, outlineY, playerX, playerY) >
-      Math.sqrt(2) * playerReach
+    Math.sqrt(2) * playerReach
   ) {
     outOfRange = true;
   }
