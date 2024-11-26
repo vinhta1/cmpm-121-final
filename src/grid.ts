@@ -11,12 +11,42 @@ export interface GridCell {
 const OFFSET = 7;
 
 export class Grid {
-  private _numCells: number;            public get numCells(): number { return this._numCells; }            public set numCells(value: number) { this._numCells = value; }
-  private _buffer: ArrayBuffer;         public get buffer(): ArrayBuffer { return this._buffer; }           public set buffer(value: ArrayBuffer) { this._buffer = value;}
-  private _viewer: Uint8Array;          public get viewer(): Uint8Array { return this._viewer; }            public set viewer(value: Uint8Array) { this._viewer = value; }
-  //stores all the viewers in an array 
-  private _stateArray: Uint8Array[];    public get stateArray(): Uint8Array[] { return this._stateArray; }  public set stateArray(value: Uint8Array[]) { this._stateArray = value; }
-  private _width: number;               public get width(): number { return this._width; }                  public set width(value: number) { this._width = value; }
+  private _numCells: number;
+  public get numCells(): number {
+    return this._numCells;
+  }
+  public set numCells(value: number) {
+    this._numCells = value;
+  }
+  private _buffer: ArrayBuffer;
+  public get buffer(): ArrayBuffer {
+    return this._buffer;
+  }
+  public set buffer(value: ArrayBuffer) {
+    this._buffer = value;
+  }
+  private _viewer: Uint8Array;
+  public get viewer(): Uint8Array {
+    return this._viewer;
+  }
+  public set viewer(value: Uint8Array) {
+    this._viewer = value;
+  }
+  //stores all the viewers in an array
+  private _stateArray: Uint8Array[];
+  public get stateArray(): Uint8Array[] {
+    return this._stateArray;
+  }
+  public set stateArray(value: Uint8Array[]) {
+    this._stateArray = value;
+  }
+  private _width: number;
+  public get width(): number {
+    return this._width;
+  }
+  public set width(value: number) {
+    this._width = value;
+  }
 
   constructor(width: number, height: number) {
     // Create an array buffer to store all cells. Cells are comprised of 7 uInt8, depicted in Interface GridCell
@@ -71,9 +101,9 @@ export class Grid {
     const index = (y * this._width + x) * OFFSET;
     if (this._viewer[index] != x || this._viewer[index + 1] != y) {
       throw new Error(
-        `Buffer isn't lined up: input ${x},${y}, buffer ${this._viewer[index]},${
-          this._viewer[index + 1]
-        }`,
+        `Buffer isn't lined up: input ${x},${y}, buffer ${
+          this._viewer[index]
+        },${this._viewer[index + 1]}`,
       );
     }
     return {
@@ -87,17 +117,29 @@ export class Grid {
     };
   }
 
-  public gridChange (viewer: Uint8Array){
+  public gridChange(viewer: Uint8Array) {
     this.stateArray.push(viewer);
   }
 
-  public saveToJSON(){
+  public stateToJSON() {
     return JSON.stringify({
       numCells: this._numCells,
       buffer: this._buffer,
       viewer: this._viewer,
       stateArray: this.stateArray,
-      width: this._width
-    })
+      width: this._width,
+    });
+  }
+
+  public static loadFromJSON(JSONFile: string) {
+    const data = JSON.parse(JSONFile);
+    const viewer = new Uint8Array(data.buffer);
+    let stateArray = [];
+    stateArray = data.stateArray;
+
+    const grid = new Grid(data.width, data.numCells / data.width + 1);
+    grid._viewer = viewer;
+    grid._stateArray = stateArray;
+    return grid;
   }
 }

@@ -18,6 +18,14 @@ const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = "Next Day";
 app.appendChild(turnButton);
 
+const saveButton: HTMLButtonElement = document.createElement("button");
+saveButton.innerHTML = "Save";
+app.appendChild(saveButton);
+
+const loadButton: HTMLButtonElement = document.createElement("button");
+loadButton.innerHTML = "Load";
+app.appendChild(loadButton);
+
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
@@ -39,7 +47,7 @@ canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
 
 const renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
 
-const grid = new g.Grid(width, height);
+let grid = new g.Grid(width, height);
 
 let currentTurn = 0;
 
@@ -264,6 +272,17 @@ function refreshDisplay() {
   displayCurrentTileInformation();
 }
 
+function downloadSave(exportName: string) { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
+  const dataStr = "data:text/json;charset=utf-8," +
+    encodeURIComponent(grid.stateToJSON());
+  const download = document.createElement("a");
+  download.setAttribute("href", dataStr);
+  download.setAttribute("download", exportName + ".json");
+  document.body.appendChild(download); // required for firefox
+  download.click();
+  download.remove();
+}
+
 document.addEventListener("keydown", (event: KeyboardEvent) => {
   const key = event.key.toLowerCase();
   if (u.KEY_MAP[key] == "up") {
@@ -320,6 +339,41 @@ turnButton.addEventListener("click", () => {
   updateGrid();
   newWeather();
   refreshDisplay();
+});
+
+saveButton.addEventListener("click", () => { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
+  downloadSave("save");
+});
+
+loadButton.addEventListener("click", () => {
+  // Dynamically create a hidden input element
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json"; // Limit file selection to JSON files only
+
+  // Wait for the user to select the file
+  input.addEventListener("change", (event) => {
+    const file = (event.target as HTMLInputElement).files![0];
+    const fr = new FileReader();
+
+    // Once the file is read, parse the JSON and load into the grid
+    fr.onload = () => {
+      try {
+        const jsonString = fr.result as string;
+        grid = g.Grid.loadFromJSON(jsonString); // Assuming loadFromJSON exists in g.Grid
+        console.log("Loaded grid:", grid);
+        refreshDisplay(); // Refresh the display to reflect the loaded grid
+        currentDay.innerHTML = `Day: ${currentTurn}`; // Updates current day
+      } catch (err) {
+        console.error("Failed to parse JSON:", err);
+        alert("Invalid JSON file. Please try again.");
+      }
+    };
+
+    fr.readAsText(file);
+  });
+
+  input.click(); // Open the file dialog
 });
 
 for (let i = 1; i <= 6; i++) {
