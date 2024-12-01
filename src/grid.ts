@@ -18,7 +18,7 @@ export class Grid {
   private width: number;
 
   constructor(width: number, height: number) {
-    // Create an array buffer to store all cells. Cells are comprised of 7 uInt8, depicted in Interface GridCell
+    // Create an array buffer to store all cells. Cells are comprised of 8 uInt8, depicted in Interface GridCell
     this.numCells = width * height;
     this.buffer = new ArrayBuffer(this.numCells * OFFSET);
     this.viewer = new Uint8Array(this.buffer);
@@ -88,5 +88,17 @@ export class Grid {
       backgroundID: this.viewer[index + 6],
       age: this.viewer[index + 7],
     };
+  }
+
+  public cloneGrid(): Uint8Array {
+    // Clone the entire viewer (Uint8Array) and create a deep copy
+    return new Uint8Array(this.viewer);
+  }
+
+  public restoreGrid(clonedState: Uint8Array) {
+    if (clonedState.length !== this.viewer.length) {
+      throw new Error("Incompatible grid size during restore!");
+    }
+    this.viewer.set(clonedState);
   }
 }
