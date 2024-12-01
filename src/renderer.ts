@@ -108,6 +108,7 @@ export class P5Renderer implements Renderer {
   }
 
   private sketch(p: p5) {
+    this.p = p;
     p.preload = () => {
       this.preloadImages();
     };

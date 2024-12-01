@@ -10,6 +10,15 @@ title.id = "title";
 title.innerHTML = "TEST";
 app.appendChild(title);
 
+const p5CheckText: HTMLDivElement = document.createElement("h4");
+p5CheckText.innerHTML = "Use P5 Canvas?";
+app.appendChild(p5CheckText);
+
+const p5Check: HTMLInputElement = document.createElement("input");
+p5Check.type = "checkbox";
+p5Check.checked = true;
+p5CheckText.appendChild(p5Check);
+
 const winText: HTMLDivElement = document.createElement("h1");
 winText.innerHTML = "";
 winText.style.color = "green";
@@ -48,9 +57,8 @@ const scale = 5;
 canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
 canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
 
-const useP5: boolean = false;
 let renderer: r.Renderer;
-if (useP5) {
+if (p5Check.checked) {
   renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
 } else {
   renderer = new r.JSRenderer(u.IMAGE_PATHS, scale);
@@ -394,6 +402,17 @@ turnButton.addEventListener("click", () => {
   currentDay.innerHTML = `Day: ${currentTurn}`;
   updateGrid();
   newWeather();
+  refreshDisplay();
+});
+
+p5Check.addEventListener("change", (e) => {
+  const target = e.target as HTMLInputElement;
+  canvasElement.innerHTML = "";
+  if (target.checked) {
+    renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+  } else {
+    renderer = new r.JSRenderer(u.IMAGE_PATHS, scale);
+  }
   refreshDisplay();
 });
 
