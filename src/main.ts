@@ -30,8 +30,9 @@ app.appendChild(turnButton);
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
-const canvasElement: HTMLDivElement =
-  document.querySelector("#canvas-container")!;
+const canvasElement: HTMLDivElement = document.querySelector(
+  "#canvas-container",
+)!;
 app.appendChild(canvasElement);
 
 const tileInformation: HTMLElement = document.createElement("p");
@@ -47,7 +48,13 @@ const scale = 5;
 canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
 canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
 
-const renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+const useP5: boolean = false;
+let renderer: r.Renderer;
+if (useP5) {
+  renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+} else {
+  renderer = new r.JSRenderer(u.IMAGE_PATHS, scale);
+}
 
 const grid = new g.Grid(width, height);
 
@@ -107,7 +114,7 @@ function checkWinCondition() {
   //can be used to keep track of win conditions across levels
   const totalHarvested = Object.keys(gameInventory).reduce(
     (sum, key) => sum + gameInventory[key],
-    0
+    0,
   );
 
   if (totalHarvested >= 12) {
@@ -173,7 +180,7 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
   if (!plantRule) return; // Skip if no growth rule exists.
 
   const samePlantNeighbors = neighbors.filter(
-    (n) => n.plantID === cell.plantID
+    (n) => n.plantID === cell.plantID,
   );
   let adjustedGrowthRate = plantRule.growthrate;
 
@@ -212,13 +219,13 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
   grid.setCell(cell);
 
   console.log(
-    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${
-      samePlantNeighbors.length
-    }, Sun: ${cell.sun}, Water: ${cell.water.toFixed(
-      1
-    )}, Adjusted GrowthRate: ${adjustedGrowthRate.toFixed(2)}, GrowthLevel: ${
-      cell.growthLevel
-    }`
+    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${samePlantNeighbors.length}, Sun: ${cell.sun}, Water: ${
+      cell.water.toFixed(
+        1,
+      )
+    }, Adjusted GrowthRate: ${
+      adjustedGrowthRate.toFixed(2)
+    }, GrowthLevel: ${cell.growthLevel}`,
   );
 }
 
@@ -259,7 +266,7 @@ function drawBackground() {
         u.IMAGE_PATHS[grid.getCell(j, i).backgroundID],
         tileOffset(j),
         tileOffset(i),
-        u.TILE_SIZE
+        u.TILE_SIZE,
       );
     }
   }
@@ -282,7 +289,7 @@ function drawPlants() {
         plantImage,
         tileOffset(j), // Horizontal position
         tileOffset(i), // Vertical position
-        u.TILE_SIZE
+        u.TILE_SIZE,
       );
     }
   }
@@ -293,7 +300,7 @@ function drawOutline() {
     outOfRange ? u.IMAGE_PATHS[35] : u.IMAGE_PATHS[34],
     tileOffset(outlineX),
     tileOffset(outlineY),
-    16
+    16,
   );
 }
 
@@ -302,7 +309,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-    8
+    8,
   );
 }
 
@@ -355,7 +362,7 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
   outOfRange = false;
   if (
     u.distance(outlineX, outlineY, playerX, playerY) >
-    Math.sqrt(2) * playerReach
+      Math.sqrt(2) * playerReach
   ) {
     outOfRange = true;
   }
