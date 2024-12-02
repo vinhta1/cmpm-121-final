@@ -10,6 +10,15 @@ title.id = "title";
 title.innerHTML = "TEST";
 app.appendChild(title);
 
+const p5CheckText: HTMLDivElement = document.createElement("h4");
+p5CheckText.innerHTML = "Use P5 Canvas?";
+app.appendChild(p5CheckText);
+
+const p5Check: HTMLInputElement = document.createElement("input");
+p5Check.type = "checkbox";
+p5Check.checked = true;
+p5CheckText.appendChild(p5Check);
+
 const winText: HTMLDivElement = document.createElement("h1");
 winText.innerHTML = "";
 winText.style.color = "green";
@@ -49,7 +58,12 @@ let redoStack: Array<Uint8Array> = [];
 canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
 canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
 
-const renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+let renderer: r.Renderer;
+if (p5Check.checked) {
+  renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+} else {
+  renderer = new r.JSRenderer(u.IMAGE_PATHS, scale);
+}
 
 const grid = new g.Grid(width, height);
 
@@ -297,6 +311,16 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
   }
 
   grid.setCell(cell);
+
+  console.log(
+    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${samePlantNeighbors.length}, Sun: ${cell.sun}, Water: ${
+      cell.water.toFixed(
+        1,
+      )
+    }, Adjusted GrowthRate: ${
+      adjustedGrowthRate.toFixed(2)
+    }, GrowthLevel: ${cell.growthLevel}`,
+  );
 }
 
 function getSurroundingCells(x: number, y: number) {
@@ -464,6 +488,17 @@ turnButton.addEventListener("click", () => {
   saveStateToUndoStack(grid);
   updateGrid();
   newWeather();
+  refreshDisplay();
+});
+
+p5Check.addEventListener("change", (e) => {
+  const target = e.target as HTMLInputElement;
+  canvasElement.innerHTML = "";
+  if (target.checked) {
+    renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+  } else {
+    renderer = new r.JSRenderer(u.IMAGE_PATHS, scale);
+  }
   refreshDisplay();
 });
 
