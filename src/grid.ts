@@ -7,9 +7,10 @@ export interface GridCell {
   water: number;
   backgroundID: number;
   age: number;
+  planted: boolean;
 }
 
-const OFFSET = 8;
+const OFFSET = 9;
 
 export class Grid {
   private buffer: ArrayBuffer;
@@ -36,6 +37,7 @@ export class Grid {
       this.viewer[i * OFFSET + 5] = 0;
       this.viewer[i * OFFSET + 6] = 0;
       this.viewer[i * OFFSET + 7] = 0;
+      this.viewer[i * OFFSET + 8] = 0;
     }
   }
   public setCell(GridCell: GridCell) {
@@ -87,6 +89,7 @@ export class Grid {
       water: this.viewer[index + 5],
       backgroundID: this.viewer[index + 6],
       age: this.viewer[index + 7],
+      planted: this.viewer[index + 8] === 1,
     };
   }
 
@@ -99,6 +102,18 @@ export class Grid {
     if (clonedState.length !== this.viewer.length) {
       throw new Error("Incompatible grid size during restore!");
     }
-    this.viewer.set(clonedState);
+
+    console.log("Restoring grid state...");
+    this.viewer.set(clonedState); // Restore snapshot into the internal buffer
+
+    // Log for debugging: Print all restored grid cells
+    for (let y = 0; y < Math.floor(this.numCells / this.width); y++) {
+      for (let x = 0; x < this.width; x++) {
+        const cell = this.getCell(x, y);
+        console.log(
+          `Restored Cell (${x}, ${y}) - PlantID=${cell.plantID}, GrowthLevel=${cell.growthLevel}`,
+        );
+      }
+    }
   }
 }

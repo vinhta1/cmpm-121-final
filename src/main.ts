@@ -152,8 +152,8 @@ function clickCell() {
   } else if (cell.plantID === 0) {
     cell.plantID = currentPlant;
     cell.growthLevel = 0;
-    cell.age = 0;
-    cell.water = 0;
+    //cell.age = 0;
+    //cell.water = 0;
   }
   grid.setCell(cell);
   refreshDisplay();
@@ -161,12 +161,28 @@ function clickCell() {
 
 const undoButton = document.createElement("button");
 undoButton.innerHTML = "Undo";
-undoButton.addEventListener("click", () => undo(grid));
+undoButton.addEventListener("click", () => {
+  undo(grid);
+  currentTurn--; // Update the turn counter for redo
+  if (currentTurn < 0) {
+    currentTurn = 0;
+  }
+  currentDay.innerHTML = `Day: ${currentTurn}`; // Update the day display
+});
 app.appendChild(undoButton);
 
 const redoButton = document.createElement("button");
 redoButton.innerHTML = "Redo";
-redoButton.addEventListener("click", redo);
+redoButton.addEventListener("click", () => {
+  redo(grid);
+  if (currentTurn < 0) {
+    currentTurn = 0;
+  } else if (currentTurn > undoStack.length) {
+    currentTurn = undoStack.length;
+  }
+  currentTurn++; // Update the turn counter for redo
+  currentDay.innerHTML = `Day: ${currentTurn}`; // Update the day display
+});
 app.appendChild(redoButton);
 
 function saveStateToUndoStack(grid: g.Grid) {
@@ -179,90 +195,46 @@ function saveStateToUndoStack(grid: g.Grid) {
   );
 }
 
-// function undo() {
-//   if (undoStack.length > 0) {
-//     redoStack.push(grid.cloneGrid());
-//     const previousState = undoStack.pop();
-//     grid.restoreGrid(previousState!); // Restore the grid state
-
-//     // Log the plantID for each cell
-//     for (let i = 0; i < height; i++) {
-//       for (let j = 0; j < width; j++) {
-//         const cell = grid.getCell(j, i); // Get the cell at (j, i)
-//         console.log(`Cell (${j}, ${i}): plantID=${cell.plantID}, plantLevel ${cell.growthLevel}`);
-//       }
-//     }
-//     refreshDisplay();
-//   } else {
-//     console.log("No actions to undo!");
-//   }
-// }
-
 function undo(grid: g.Grid) {
   if (undoStack.length > 0) {
-    // Save the current state to the redo stack to allow redoing later
-    redoStack.push(grid.cloneGrid());
+    console.log("Restoring grid state...");
+    const currentState = grid.cloneGrid();
+    redoStack.push(currentState);
 
-    // Iterate through the grid to handle the undo step
+    const previousState = undoStack.pop();
+    grid.restoreGrid(previousState!);
+
+    // Check restored sun and water values
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
         const cell = grid.getCell(j, i);
-
-        // Only handle cells with a plant
-        if (cell.plantID > 0) {
-          const plantRule = p.PLANT_RULE[cell.plantID]; // Get rules for the plant
-          if (plantRule) {
-            console.log(
-              `Undoing Cell (${j}, ${i}): plantID=${cell.plantID}, age=${cell.age}, growthLevel=${cell.growthLevel}, sun=${cell.sun}, water=${cell.water}`,
-            );
-
-            // Step 1: Decrement plant's age and calculate rollback values
-            cell.age = Math.max(cell.age - 1, 0); // Remove 1 day of growth
-
-            // Recalculate growthLevel based on reduced age
-            const growthRate = plantRule.growthrate;
-            const requiredDaysPerLevel = 1 / growthRate;
-            const newGrowthLevel = Math.min(
-              Math.floor(cell.age / requiredDaysPerLevel),
-              3,
-            ); // Max growth level is 3
-            cell.growthLevel = newGrowthLevel;
-
-            // Step 2: Restore the sun and water values for the previous turn
-            if (cell.age <= 0) {
-              console.log(`Cell (${j}, ${i}) fully regressed. Removing plant.`);
-              cell.plantID = 0; // Clear the plant
-              cell.growthLevel = 0;
-              cell.sun = 0;
-              cell.water = 0;
-            }
-
-            // Save changes back to the grid
-            grid.setCell(cell);
-
-            // Dynamic sprite update for each cell
-            refreshDisplay(); // Update display to reflect one step of the undo
-          }
-        }
+        console.log(
+          `Restored cell (${j}, ${i}) - Sun: ${cell.sun}, Water: ${cell.water}`,
+        );
       }
     }
 
-    // Update the current day once per undo
-    currentTurn = Math.max(currentTurn - 1, 0); // Prevent day counter from going negative
-    currentDay.innerText = `Day: ${currentTurn}`; // Update the HUD to show the new day
-
-    console.log(`Undo completed. Day regressed to: ${currentTurn}`);
+    refreshDisplay();
   } else {
     console.log("No actions to undo!");
   }
 }
 
-function redo() {
+function redo(grid: g.Grid) {
   if (redoStack.length > 0) {
-    undoStack.push(grid.cloneGrid()); // Save current state to undo stack
+    console.log("Redo: Restoring next grid state...");
+
+    const currentState = grid.cloneGrid();
+    undoStack.push(currentState);
+
     const nextState = redoStack.pop();
-    grid.restoreGrid(nextState!); // Restore the grid state
-    refreshDisplay(); // Update visuals
+    grid.restoreGrid(nextState!);
+
+    console.log(
+      `Redo complete. UndoStack size: ${undoStack.length}, RedoStack size: ${redoStack.length}.`,
+    );
+
+    refreshDisplay();
   } else {
     console.log("No actions to redo!");
   }
@@ -270,6 +242,7 @@ function redo() {
 
 function newWeather() {
   // set the sun level and add to the water level
+
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const cell = grid.getCell(j, i);
@@ -324,16 +297,6 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
   }
 
   grid.setCell(cell);
-
-  // console.log(
-  //   `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${
-  //     samePlantNeighbors.length
-  //   }, Sun: ${cell.sun}, Water: ${cell.water.toFixed(
-  //     1
-  //   )}, Adjusted GrowthRate: ${adjustedGrowthRate.toFixed(2)}, GrowthLevel: ${
-  //     cell.growthLevel
-  //   }`
-  // );
 }
 
 function getSurroundingCells(x: number, y: number) {
@@ -354,7 +317,7 @@ function getSurroundingCells(x: number, y: number) {
 
 function updateGrid() {
   // perform changes to the grid based on previous turn configuration
-  //console.log("Updating grid for a new turn...");
+
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       updateCell(grid.getCell(j, i), getSurroundingCells(j, i));
@@ -385,7 +348,6 @@ function drawPlants() {
       const cell = grid.getCell(j, i);
       if (cell.plantID == 0) continue; // Skip empty cells
 
-      // Display based on the current growth level
       let plantImage: string = u.IMAGE_PATHS[cell.growthLevel + 1]; // Default to seed
       if (cell.growthLevel > 0) {
         plantImage =
@@ -428,13 +390,13 @@ function displayCurrentTileInformation() {
     const progress = ((tile.growthLevel / 3) * 100).toFixed(2);
 
     tileInformation.innerHTML = `
-      Tile: (${tile.x}, ${tile.y})<br>
-      Sun: ${tile.sun}<br>
-      Water: ${tile.water}<br>
-      Plant: ${tile.plantID > 0 ? p.PLANT_MAP[tile.plantID].name : "None"}<br>
-      Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}<br>
-      Progress: ${progress}%
-    `;
+     Tile: (${tile.x}, ${tile.y})<br>
+     Sun: ${tile.sun}<br>
+     Water: ${tile.water}<br>
+     Plant: ${tile.plantID > 0 ? p.PLANT_MAP[tile.plantID].name : "None"}<br>
+     Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}<br>
+     Progress: ${progress}%
+   `;
   } else {
     tileInformation.innerHTML = "No Tile Selected";
   }
@@ -499,6 +461,7 @@ canvasElement.addEventListener("click", clickCell);
 turnButton.addEventListener("click", () => {
   currentTurn++;
   currentDay.innerHTML = `Day: ${currentTurn}`;
+  saveStateToUndoStack(grid);
   updateGrid();
   newWeather();
   refreshDisplay();
