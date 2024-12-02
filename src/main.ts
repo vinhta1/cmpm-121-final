@@ -2,16 +2,21 @@ import * as r from "./renderer.ts";
 import * as u from "./utility.ts";
 import * as g from "./grid.ts";
 import * as p from "./plants.ts";
+import * as l from "./localization.ts";
+
+let loc: l.Localization;
+loc = l.EmojiLoc;
+loc = l.EnglishLoc;
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 const title: HTMLHeadingElement = document.createElement("h1");
 title.id = "title";
-title.innerHTML = "TEST";
+title.innerHTML = loc["title"];
 app.appendChild(title);
 
 const p5CheckText: HTMLDivElement = document.createElement("h4");
-p5CheckText.innerHTML = "Use P5 Canvas?";
+p5CheckText.innerHTML = loc["useP5"];
 app.appendChild(p5CheckText);
 
 const p5Check: HTMLInputElement = document.createElement("input");
@@ -29,11 +34,11 @@ winText.style.top = "500px"; // Y-coordinate
 app.appendChild(winText);
 
 const currentDay: HTMLDivElement = document.createElement("h2");
-currentDay.innerHTML = "Day: 0";
+currentDay.innerHTML = `${loc["day"]}: 0`;
 app.appendChild(currentDay);
 
 const turnButton: HTMLButtonElement = document.createElement("button");
-turnButton.innerHTML = "Next Day";
+turnButton.innerHTML = loc["nextDay"];
 app.appendChild(turnButton);
 
 const plantOptions: HTMLDivElement = document.createElement("div");
@@ -128,7 +133,7 @@ function checkWinCondition() {
 
   if (totalHarvested >= 12) {
     console.log("Win condition met!");
-    winText.innerHTML = "You Win!";
+    winText.innerHTML = loc["win"];
     return true;
   }
   return false;
@@ -136,7 +141,7 @@ function checkWinCondition() {
 
 function createPlantOptionButton(plantID: number) {
   const button = document.createElement("button");
-  button.innerHTML = p.PLANT_MAP[plantID].name;
+  button.innerHTML = loc[p.PLANT_MAP[plantID].name as keyof l.Localization];
   button.addEventListener("click", () => {
     currentPlant = plantID;
   });
@@ -174,19 +179,19 @@ function clickCell() {
 }
 
 const undoButton = document.createElement("button");
-undoButton.innerHTML = "Undo";
+undoButton.innerHTML = loc["undo"];
 undoButton.addEventListener("click", () => {
   undo(grid);
   currentTurn--; // Update the turn counter for redo
   if (currentTurn < 0) {
     currentTurn = 0;
   }
-  currentDay.innerHTML = `Day: ${currentTurn}`; // Update the day display
+  currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
 });
 app.appendChild(undoButton);
 
 const redoButton = document.createElement("button");
-redoButton.innerHTML = "Redo";
+redoButton.innerHTML = loc["redo"];
 redoButton.addEventListener("click", () => {
   redo(grid);
   if (currentTurn < 0) {
@@ -195,7 +200,7 @@ redoButton.addEventListener("click", () => {
     currentTurn = undoStack.length;
   }
   currentTurn++; // Update the turn counter for redo
-  currentDay.innerHTML = `Day: ${currentTurn}`; // Update the day display
+  currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
 });
 app.appendChild(redoButton);
 
@@ -414,15 +419,21 @@ function displayCurrentTileInformation() {
     const progress = ((tile.growthLevel / 3) * 100).toFixed(2);
 
     tileInformation.innerHTML = `
-     Tile: (${tile.x}, ${tile.y})<br>
-     Sun: ${tile.sun}<br>
-     Water: ${tile.water}<br>
-     Plant: ${tile.plantID > 0 ? p.PLANT_MAP[tile.plantID].name : "None"}<br>
-     Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}<br>
-     Progress: ${progress}%
+     ${loc["tile"]}: (${tile.x}, ${tile.y})<br>
+     ${loc["sun"]}: ${tile.sun}<br>
+     ${loc["water"]}: ${tile.water}<br>
+     ${loc["plant"]}: ${
+      tile.plantID > 0
+        ? loc[p.PLANT_MAP[tile.plantID].name as keyof l.Localization]
+        : loc["none"]
+    }<br>
+     ${loc["growthLevel"]}: ${
+      tile.plantID > 0 ? tile.growthLevel : loc["none"]
+    }<br>
+     ${loc["progress"]}: ${progress}%
    `;
   } else {
-    tileInformation.innerHTML = "No Tile Selected";
+    tileInformation.innerHTML = loc["nothing"];
   }
 }
 
@@ -484,7 +495,7 @@ canvasElement.addEventListener("click", clickCell);
 
 turnButton.addEventListener("click", () => {
   currentTurn++;
-  currentDay.innerHTML = `Day: ${currentTurn}`;
+  currentDay.innerHTML = `${loc["day"]} ${currentTurn}`;
   saveStateToUndoStack(grid);
   updateGrid();
   newWeather();
