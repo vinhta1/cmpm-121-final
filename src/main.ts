@@ -189,10 +189,12 @@ function clickCell() {
 const undoButton = document.createElement("button");
 undoButton.innerHTML = loc["undo"];
 undoButton.addEventListener("click", () => {
-  undo(grid);
-  currentTurn--; // Update the turn counter for redo
-  if (currentTurn < 0) {
-    currentTurn = 0;
+  if (undoStack.length > 0) {
+    undo(grid);
+    currentTurn--; // Update the turn counter for redo
+    if (currentTurn < 0) {
+      currentTurn = 0;
+    }
   }
   currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
 });
@@ -201,13 +203,15 @@ app.appendChild(undoButton);
 const redoButton = document.createElement("button");
 redoButton.innerHTML = loc["redo"];
 redoButton.addEventListener("click", () => {
-  redo(grid);
-  if (currentTurn < 0) {
-    currentTurn = 0;
-  } else if (currentTurn > undoStack.length) {
-    currentTurn = undoStack.length;
+  if (redoStack.length > 0) {
+    redo(grid);
+    currentTurn++;
+    if (currentTurn < 0) {
+      currentTurn = 0;
+    } else if (currentTurn > undoStack.length) {
+      currentTurn = undoStack.length - 1;
+    }
   }
-  currentTurn++; // Update the turn counter for redo
   currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
 });
 app.appendChild(redoButton);
