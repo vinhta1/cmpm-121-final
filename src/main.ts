@@ -41,13 +41,13 @@ const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = loc["nextDay"];
 app.appendChild(turnButton);
 
-const saveButton: HTMLButtonElement = document.createElement("button");
-saveButton.innerHTML = "Save";
-app.appendChild(saveButton);
+// const saveButton: HTMLButtonElement = document.createElement("button");
+// saveButton.innerHTML = "Save";
+// app.appendChild(saveButton);
 
-const loadButton: HTMLButtonElement = document.createElement("button");
-loadButton.innerHTML = "Load";
-app.appendChild(loadButton);
+// const loadButton: HTMLButtonElement = document.createElement("button");
+// loadButton.innerHTML = "Load";
+// app.appendChild(loadButton);
 
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
@@ -65,7 +65,7 @@ const height = 5;
 
 const scale = 5;
 
-const undoStack: Array<Uint8Array> = [];
+let undoStack: Array<Uint8Array> = [];
 let redoStack: Array<Uint8Array> = [];
 
 canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
@@ -454,9 +454,58 @@ function refreshDisplay() {
   displayCurrentTileInformation();
 }
 
+function saveGame() {
+  const undoStackSerialized: string[] = undoStack.map(grid.serializeArray);
+  const redoStackSerialized: string[] = redoStack.map(grid.serializeArray);
+
+  const currentState: string = grid.serializeArray(grid.cloneGrid());
+
+  return [
+    currentState,
+    JSON.stringify(undoStackSerialized),
+    JSON.stringify(redoStackSerialized),
+  ];
+}
+
+function loadGame(data: [string, string, string]) {
+  const undoStackSerialized: string[] = JSON.parse(data[1]);
+  const redoStackSerialized: string[] = JSON.parse(data[2]);
+
+  grid.restoreGrid(grid.deserializeArray(data[0]));
+  undoStack = undoStackSerialized.map(grid.deserializeArray);
+  redoStack = redoStackSerialized.map(grid.deserializeArray);
+
+  refreshDisplay();
+}
+
+globalThis.addEventListener("beforeunload", () => {
+  //const autoSave: string[] = saveGame();
+  //localStorage.setItem("autosave",JSON.stringify(autoSave))
+  saveGameToSlot("gameSave_autosave");
+});
+
+globalThis.addEventListener("load", () => {
+  try {
+    const autosave = localStorage.getItem("gameSave_autosave");
+    if (autosave) {
+      if (confirm("An autosave was found. Would you like to load it?")) {
+        const savePayload = JSON.parse(autosave);
+        loadGame(savePayload.data); // Load the autosave data
+        console.log("Autosave loaded successfully.");
+      } else {
+        console.log("Player chose not to load the autosave.");
+      }
+    } else {
+      console.log("No autosave found.");
+    }
+  } catch (error) {
+    console.error("Error loading autosave:", error);
+  }
+});
+
 // function downloadSave(exportName: string) { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
 //   const dataStr = "data:text/json;charset=utf-8," +
-//     encodeURIComponent(grid.stateToJSON());
+//     encodeURIComponent(JSON.stringify(saveGame()));
 //   const download = document.createElement("a");
 //   download.setAttribute("href", dataStr);
 //   download.setAttribute("download", exportName + ".json");
@@ -464,6 +513,108 @@ function refreshDisplay() {
 //   download.click();
 //   download.remove();
 // }
+
+// function uploadSave(){
+//   const upload = document.createElement("input");
+//   upload.type = "file"; upload.accept = ".json";
+//   document.body.appendChild(upload);
+//   upload.click(); upload.remove();
+//   loadGame(JSON.parse(upload))
+// }
+
+function saveGameToSlot(slotName: string) {
+  const savedData = saveGame(); // Assume this gathers save data like in your previous code
+  const savePayload = {
+    timestamp: new Date().toISOString(),
+    data: savedData, // Your saveGame format, e.g., [currentState, undoStack, redoStack]
+  };
+  localStorage.setItem(slotName, JSON.stringify(savePayload));
+  console.log(`Game saved to slot: ${slotName}`);
+}
+
+function loadGameFromSlot(slotName: string) {
+  const savedDataString = localStorage.getItem(slotName);
+  if (!savedDataString) {
+    console.error(`No save found in slot: ${slotName}`);
+    return;
+  }
+
+  const savePayload = JSON.parse(savedDataString);
+  loadGame(savePayload.data); // Assume your `loadGame` function is prepared for this format
+  console.log(`Game loaded from slot: ${slotName}`);
+}
+
+function deleteSaveSlot(slotName: string) {
+  localStorage.removeItem(slotName);
+  console.log(`Save slot deleted: ${slotName}`);
+}
+
+function renderSaveManager() {
+  const saveManager = document.getElementById("save-manager");
+  saveManager!.innerHTML = ""; // Clear existing UI
+
+  // Get all save slots from localStorage
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+
+    // Only display items that are game saves
+    if (key && key.startsWith("gameSave")) {
+      const savePayload = JSON.parse(localStorage.getItem(key)!);
+      const saveSlot = document.createElement("div");
+      saveSlot.style.margin = "10px 0";
+
+      // Display slot info
+      saveSlot.innerHTML = `
+        <strong>${key}</strong><br>
+        Saved at: ${new Date(savePayload.timestamp).toLocaleString()}
+      `;
+
+      // Add Load button
+      const loadButton = document.createElement("button");
+      loadButton.innerText = "Load";
+      loadButton.addEventListener("click", () => loadGameFromSlot(key));
+      saveSlot.appendChild(loadButton);
+
+      // Add Delete button
+      const deleteButton = document.createElement("button");
+      deleteButton.innerText = "Delete";
+      deleteButton.addEventListener("click", () => {
+        if (confirm(`Delete save slot: ${key}?`)) {
+          deleteSaveSlot(key);
+          renderSaveManager(); // Update the UI after deletion
+        }
+      });
+      saveSlot.appendChild(deleteButton);
+
+      saveManager!.appendChild(saveSlot);
+    }
+  }
+
+  // Add Save Button for New Slot
+  const newSaveButton = document.createElement("button");
+  newSaveButton.innerText = "New Save Slot";
+  newSaveButton.addEventListener("click", () => {
+    const saveName = prompt("Enter a name for the new save slot:");
+    if (saveName) {
+      const slotName = `gameSave_${saveName}`;
+      if (localStorage.getItem(slotName)) {
+        if (!confirm(`Slot "${slotName}" already exists. Overwrite?`)) return;
+      }
+      saveGameToSlot(slotName);
+      renderSaveManager(); // Update UI after saving
+    }
+  });
+  saveManager!.appendChild(newSaveButton);
+}
+
+// Initialize the save manager interface
+document.addEventListener("DOMContentLoaded", () => {
+  const saveManagerContainer = document.createElement("div");
+  saveManagerContainer.id = "save-manager";
+  document.body.appendChild(saveManagerContainer);
+
+  renderSaveManager(); // Render when the page loads
+});
 
 document.addEventListener("keydown", (event: KeyboardEvent) => {
   const key = event.key.toLowerCase();
@@ -520,6 +671,20 @@ turnButton.addEventListener("click", () => {
   newWeather();
   refreshDisplay();
 });
+
+// saveButton.addEventListener("click", ()=> {
+//   const saveName = prompt("Save File Name");
+//   if (saveName)
+//     saveGameToSlot(saveName);
+//   else console.log ("Player entered empty save name");
+// });
+
+// loadButton.addEventListener("click", () => {
+//   const loadName = prompt("Load File Name");
+//   if (loadName)
+//     loadGameFromSlot(loadName);
+//   else console.log ("Player entered empty load name");
+// });
 
 p5Check.addEventListener("change", (e) => {
   const target = e.target as HTMLInputElement;

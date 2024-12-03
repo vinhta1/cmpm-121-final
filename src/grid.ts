@@ -140,4 +140,12 @@ export class Grid {
       }
     }
   }
+
+  public serializeArray(array: Uint8Array): string {
+    return Array.from(array, (byte) => String.fromCharCode(byte)).join("");
+  }
+
+  public deserializeArray(binary: string): Uint8Array {
+    return new Uint8Array([...binary].map((char) => char.charCodeAt(0)));
+  }
 }
