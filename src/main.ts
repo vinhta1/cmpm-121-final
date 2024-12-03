@@ -290,33 +290,7 @@ function updateCell(cell: g.GridCell) {
   const canGrow = plantRule.growthCondition(grid, { x: cell.x, y: cell.y });
   cell.age++;
   if (canGrow < 1) return; // Skip if no growth rule exists.
-
-  // const samePlantNeighbors = neighbors.filter(
-  //   (n) => n.plantID === cell.plantID
-  // );
-  let adjustedGrowthRate = canGrow;
-
-  // **Step 1: Adjust for Neighbor Conditions**
-  // if (samePlantNeighbors.length >= 1 && samePlantNeighbors.length <= 2) {
-  //   const neighborBoostMultiplier = 1.75;
-  //   adjustedGrowthRate *= neighborBoostMultiplier;
-  // } else if (samePlantNeighbors.length >= 3) {
-  //   const competitionFactor = 2; // Halve growth rate.
-  //   adjustedGrowthRate /= competitionFactor;
-  // }
-
-  //  if (cell.sun > 5) {
-  //   const sunBoostMultiplier = 1.5; // 10% boost for enough sun energy.
-  //   adjustedGrowthRate *= sunBoostMultiplier;
-  //   //console.log("sun boost", adjustedGrowthRate);
-  // }
-
-  // if (cell.water >= 5) {
-  //   const waterBoostMultiplier = 1.25; // 5% boost for water sufficiency.
-  //   adjustedGrowthRate *= waterBoostMultiplier;
-  //   //console.log("water boost", adjustedGrowthRate);
-  //   cell.water -= 1; // Absorb 1 unit of water per turn.
-  // }
+  const adjustedGrowthRate = canGrow;
 
   cell.age++;
   const requiredTurnsPerStage = adjustedGrowthRate;
@@ -328,32 +302,6 @@ function updateCell(cell: g.GridCell) {
   }
 
   grid.setCell(cell);
-
-  // console.log(
-  //   `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${
-  //     samePlantNeighbors.length
-  //   }, Sun: ${cell.sun}, Water: ${cell.water.toFixed(
-  //     1
-  //   )}, Adjusted GrowthRate: ${adjustedGrowthRate.toFixed(2)}, GrowthLevel: ${
-  //     cell.growthLevel
-  //   }`
-  // );
-}
-
-function getSurroundingCells(x: number, y: number) {
-  const cells = [];
-
-  for (let i = -1; i <= 1; i++) {
-    for (let j = -1; j <= 1; j++) {
-      if (i == 0 && j == 0) continue;
-      const dX = x + i;
-      const dY = y + j;
-      if (dX >= 0 && dX < width && dY >= 0 && dY < height) {
-        cells.push(grid.getCell(dX, dY));
-      }
-    }
-  }
-  return cells;
 }
 
 function updateGrid() {
