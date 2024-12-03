@@ -2,20 +2,43 @@ import * as r from "./renderer.ts";
 import * as u from "./utility.ts";
 import * as g from "./grid.ts";
 import * as p from "./plants.ts";
+import * as l from "./localization.ts";
+
+let loc: l.Localization;
+loc = l.EmojiLoc;
+loc = l.EnglishLoc;
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 const title: HTMLHeadingElement = document.createElement("h1");
 title.id = "title";
-title.innerHTML = "TEST";
+title.innerHTML = loc["title"];
 app.appendChild(title);
 
+const p5CheckText: HTMLDivElement = document.createElement("h4");
+p5CheckText.innerHTML = loc["useP5"];
+app.appendChild(p5CheckText);
+
+const p5Check: HTMLInputElement = document.createElement("input");
+p5Check.type = "checkbox";
+p5Check.checked = true;
+p5CheckText.appendChild(p5Check);
+
+const winText: HTMLDivElement = document.createElement("h1");
+winText.innerHTML = "";
+winText.style.color = "green";
+winText.style.fontSize = "50px";
+winText.style.left = "200px"; // X-coordinate
+winText.style.top = "500px"; // Y-coordinate
+
+app.appendChild(winText);
+
 const currentDay: HTMLDivElement = document.createElement("h2");
-currentDay.innerHTML = "Day: 0";
+currentDay.innerHTML = `${loc["day"]}: 0`;
 app.appendChild(currentDay);
 
 const turnButton: HTMLButtonElement = document.createElement("button");
-turnButton.innerHTML = "Next Day";
+turnButton.innerHTML = loc["nextDay"];
 app.appendChild(turnButton);
 
 const saveButton: HTMLButtonElement = document.createElement("button");
@@ -42,12 +65,20 @@ const height = 5;
 
 const scale = 5;
 
+const undoStack: Array<Uint8Array> = [];
+let redoStack: Array<Uint8Array> = [];
+
 canvasElement.style.width = `${width * u.TILE_SIZE * scale}px`;
 canvasElement.style.height = `${height * u.TILE_SIZE * scale}px`;
 
-const renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+let renderer: r.Renderer;
+if (p5Check.checked) {
+  renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+} else {
+  renderer = new r.JSRenderer(u.IMAGE_PATHS, scale);
+}
 
-let grid = new g.Grid(width, height);
+const grid = new g.Grid(width, height);
 
 let currentTurn = 0;
 
@@ -79,14 +110,46 @@ function _setGridTestRandomPlants() {
       const cell = grid.getCell(j, i);
       cell.plantID = Math.floor(Math.random() * 7);
       cell.growthLevel = Math.floor(Math.random() * 4);
+      cell.age = 0;
       grid.setCell(cell);
     }
   }
 }
 
+const gameInventory: Record<string, number> = {}; // A simple global object to track collected produce
+
+function handleHarvest(plantID: number) {
+  const plantName = p.PLANT_MAP[plantID].name;
+
+  // Add the harvested plant to the player's inventory
+  if (!gameInventory[plantName]) {
+    gameInventory[plantName] = 0; // Initialize inventory for the plant
+  }
+  gameInventory[plantName]++;
+  console.log(`Added 1 ${plantName} to your inventory!`);
+  console.log("Current Inventory:", gameInventory);
+
+  checkWinCondition();
+}
+
+function checkWinCondition() {
+  //can be used to keep track of win conditions across levels
+  const totalHarvested = Object.keys(gameInventory).reduce(
+    (sum, key) => sum + gameInventory[key],
+    0,
+  );
+
+  if (totalHarvested >= 12) {
+    console.log("Win condition met!");
+    winText.innerHTML = loc["win"];
+    return true;
+  }
+  return false;
+}
+
 function createPlantOptionButton(plantID: number) {
   const button = document.createElement("button");
-  button.innerHTML = p.PLANT_MAP[plantID].name;
+  button.innerHTML = loc[p.PLANT_MAP[plantID].name as keyof l.Localization];
   button.addEventListener("click", () => {
     currentPlant = plantID;
   });
@@ -95,17 +158,118 @@ function createPlantOptionButton(plantID: number) {
 
 function clickCell() {
   if (outOfRange) return;
+  saveStateToUndoStack(grid);
+
   const cell = grid.getCell(outlineX, outlineY);
-  if (cell.plantID == 0) {
+
+  // CASE 1: If the plant is fully grown, harvest it and leave the cell empty
+  if (cell.plantID > 0 && cell.growthLevel === 3) {
+    console.log(`Harvested plant at (${cell.x}, ${cell.y})!`);
+    console.log(cell.plantID);
+
+    handleHarvest(cell.plantID);
+
+    cell.plantID = 0; // Remove the plant
+    cell.growthLevel = 0; // Reset growth level
+    cell.age = 0;
+    cell.sun = 0;
+    cell.water = 0;
+
+    // CASE 2: If the player clicks on an empty cell, allow planting a new crop
+  } else if (cell.plantID === 0) {
     cell.plantID = currentPlant;
-  } else {
-    cell.plantID = 0;
+    cell.growthLevel = 0;
+    //cell.age = 0;
+    //cell.water = 0;
   }
   grid.setCell(cell);
   refreshDisplay();
 }
 
-function newWeather() { // set the sun level and add to the water level
+const undoButton = document.createElement("button");
+undoButton.innerHTML = loc["undo"];
+undoButton.addEventListener("click", () => {
+  undo(grid);
+  currentTurn--; // Update the turn counter for redo
+  if (currentTurn < 0) {
+    currentTurn = 0;
+  }
+  currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
+});
+app.appendChild(undoButton);
+
+const redoButton = document.createElement("button");
+redoButton.innerHTML = loc["redo"];
+redoButton.addEventListener("click", () => {
+  redo(grid);
+  if (currentTurn < 0) {
+    currentTurn = 0;
+  } else if (currentTurn > undoStack.length) {
+    currentTurn = undoStack.length;
+  }
+  currentTurn++; // Update the turn counter for redo
+  currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
+});
+app.appendChild(redoButton);
+
+function saveStateToUndoStack(grid: g.Grid) {
+  const snapshot = grid.cloneGrid();
+  undoStack.push(snapshot);
+  redoStack = [];
+  console.log(
+    "State saved to undoStack. Current undo stack size:",
+    undoStack.length,
+  );
+}
+
+function undo(grid: g.Grid) {
+  if (undoStack.length > 0) {
+    console.log("Restoring grid state...");
+    const currentState = grid.cloneGrid();
+    redoStack.push(currentState);
+
+    const previousState = undoStack.pop();
+    grid.restoreGrid(previousState!);
+
+    // Check restored sun and water values
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        const cell = grid.getCell(j, i);
+        console.log(
+          `Restored cell (${j}, ${i}) - Sun: ${cell.sun}, Water: ${cell.water}`,
+        );
+      }
+    }
+
+    refreshDisplay();
+  } else {
+    console.log("No actions to undo!");
+  }
+}
+
+function redo(grid: g.Grid) {
+  if (redoStack.length > 0) {
+    console.log("Redo: Restoring next grid state...");
+
+    const currentState = grid.cloneGrid();
+    undoStack.push(currentState);
+
+    const nextState = redoStack.pop();
+    grid.restoreGrid(nextState!);
+
+    console.log(
+      `Redo complete. UndoStack size: ${undoStack.length}, RedoStack size: ${redoStack.length}.`,
+    );
+
+    refreshDisplay();
+  } else {
+    console.log("No actions to redo!");
+  }
+}
+
+function newWeather() {
+  // set the sun level and add to the water level
+
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const cell = grid.getCell(j, i);
@@ -117,53 +281,59 @@ function newWeather() { // set the sun level and add to the water level
 }
 
 function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
-  if (cell.plantID == 0) {
-    return;
-  }
-  const rule = p.PLANT_RULE[cell.plantID];
-  if (cell.sun < rule.sun && rule.sun != -1) {
-    return;
-  }
-  if (cell.water < rule.water && rule.water != -1) {
-    return;
-  }
-  let all = 0;
-  let same = 0;
-  let diff = 0;
-  neighbors.forEach((nCell) => {
-    if (nCell.plantID != 0) {
-      if (nCell.plantID == cell.plantID) {
-        same++;
-      }
-      if (nCell.plantID != cell.plantID) {
-        diff++;
-      }
-      all++;
-    }
-  });
+  if (cell.plantID == 0) return; // Skip empty cells.
 
-  if (
-    (all < rule.anyNeighbors.min && rule.anyNeighbors.min != -1) ||
-    (all > rule.anyNeighbors.max && rule.anyNeighbors.max != -1)
-  ) {
-    return;
-  }
-  if (
-    (same < rule.sameNeighbors.min && rule.sameNeighbors.min != -1) ||
-    (same > rule.sameNeighbors.max && rule.sameNeighbors.max != -1)
-  ) {
-    return;
-  }
-  if (
-    (diff < rule.diffNeighbors.min && rule.diffNeighbors.min != -1) ||
-    (diff > rule.diffNeighbors.max && rule.diffNeighbors.max != -1)
-  ) {
-    return;
+  const plantRule = p.PLANT_RULE[cell.plantID];
+  if (!plantRule) return; // Skip if no growth rule exists.
+
+  const samePlantNeighbors = neighbors.filter(
+    (n) => n.plantID === cell.plantID,
+  );
+  let adjustedGrowthRate = plantRule.growthrate;
+
+  // **Step 1: Adjust for Neighbor Conditions**
+  if (samePlantNeighbors.length >= 1 && samePlantNeighbors.length <= 2) {
+    const neighborBoostMultiplier = 1.75;
+    adjustedGrowthRate *= neighborBoostMultiplier;
+  } else if (samePlantNeighbors.length >= 3) {
+    const competitionFactor = 2; // Halve growth rate.
+    adjustedGrowthRate /= competitionFactor;
   }
 
-  cell.water -= rule.water;
-  cell.growthLevel = Math.min(cell.growthLevel + 1, 3);
+  if (cell.sun > 5) {
+    const sunBoostMultiplier = 1.5; // 10% boost for enough sun energy.
+    adjustedGrowthRate *= sunBoostMultiplier;
+    //console.log("sun boost", adjustedGrowthRate);
+  }
+
+  if (cell.water >= 5) {
+    const waterBoostMultiplier = 1.25; // 5% boost for water sufficiency.
+    adjustedGrowthRate *= waterBoostMultiplier;
+    //console.log("water boost", adjustedGrowthRate);
+    cell.water -= 1; // Absorb 1 unit of water per turn.
+  }
+
+  cell.age++;
+
+  const requiredTurnsPerStage = adjustedGrowthRate;
+  const progress = cell.age * requiredTurnsPerStage;
+  const originalGrowth = cell.growthLevel;
+  cell.growthLevel = Math.min(Math.floor(progress), 3); // Maximum level = 3.
+  if (originalGrowth > cell.growthLevel) {
+    cell.growthLevel = originalGrowth;
+  }
+
   grid.setCell(cell);
+
+  console.log(
+    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${samePlantNeighbors.length}, Sun: ${cell.sun}, Water: ${
+      cell.water.toFixed(
+        1,
+      )
+    }, Adjusted GrowthRate: ${
+      adjustedGrowthRate.toFixed(2)
+    }, GrowthLevel: ${cell.growthLevel}`,
+  );
 }
 
 function getSurroundingCells(x: number, y: number) {
@@ -182,7 +352,9 @@ function getSurroundingCells(x: number, y: number) {
   return cells;
 }
 
-function updateGrid() { // perform changes to the grid based on previous turn configuration
+function updateGrid() {
+  // perform changes to the grid based on previous turn configuration
+
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       updateCell(grid.getCell(j, i), getSurroundingCells(j, i));
@@ -211,10 +383,9 @@ function drawPlants() {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const cell = grid.getCell(j, i);
-      if (cell.plantID == 0) {
-        continue; //no plant
-      }
-      let plantImage: string = u.IMAGE_PATHS[1]; // seed
+      if (cell.plantID == 0) continue; // Skip empty cells
+
+      let plantImage: string = u.IMAGE_PATHS[cell.growthLevel + 1]; // Default to seed
       if (cell.growthLevel > 0) {
         plantImage =
           u.IMAGE_PATHS[p.PLANT_MAP[cell.plantID].imageID + cell.growthLevel];
@@ -222,8 +393,8 @@ function drawPlants() {
 
       renderer.addImage(
         plantImage,
-        tileOffset(j),
-        tileOffset(i),
+        tileOffset(j), // Horizontal position
+        tileOffset(i), // Vertical position
         u.TILE_SIZE,
       );
     }
@@ -251,15 +422,26 @@ function drawPlayer() {
 function displayCurrentTileInformation() {
   if (outlineX >= 0 && outlineX < width && outlineY >= 0 && outlineY < height) {
     const tile: g.GridCell = grid.getCell(outlineX, outlineY);
+
+    //const plantRule = p.PLANT_RULE[tile.plantID];
+    const progress = ((tile.growthLevel / 3) * 100).toFixed(2);
+
     tileInformation.innerHTML = `
-    Tile: (${tile.x}, ${tile.y})<br>
-    Sun: ${tile.sun}<br>
-    Water: ${tile.water}<br>
-    Plant: ${tile.plantID > 0 ? p.PLANT_MAP[tile.plantID].name : "None"}<br>
-    Growth Level: ${tile.plantID > 0 ? tile.growthLevel : "None"}
-    `;
+     ${loc["tile"]}: (${tile.x}, ${tile.y})<br>
+     ${loc["sun"]}: ${tile.sun}<br>
+     ${loc["water"]}: ${tile.water}<br>
+     ${loc["plant"]}: ${
+      tile.plantID > 0
+        ? loc[p.PLANT_MAP[tile.plantID].name as keyof l.Localization]
+        : loc["none"]
+    }<br>
+     ${loc["growthLevel"]}: ${
+      tile.plantID > 0 ? tile.growthLevel : loc["none"]
+    }<br>
+     ${loc["progress"]}: ${progress}%
+   `;
   } else {
-    tileInformation.innerHTML = "No Tile Selected";
+    tileInformation.innerHTML = loc["nothing"];
   }
 }
 
@@ -272,16 +454,16 @@ function refreshDisplay() {
   displayCurrentTileInformation();
 }
 
-function downloadSave(exportName: string) { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
-  const dataStr = "data:text/json;charset=utf-8," +
-    encodeURIComponent(grid.stateToJSON());
-  const download = document.createElement("a");
-  download.setAttribute("href", dataStr);
-  download.setAttribute("download", exportName + ".json");
-  document.body.appendChild(download); // required for firefox
-  download.click();
-  download.remove();
-}
+// function downloadSave(exportName: string) { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
+//   const dataStr = "data:text/json;charset=utf-8," +
+//     encodeURIComponent(grid.stateToJSON());
+//   const download = document.createElement("a");
+//   download.setAttribute("href", dataStr);
+//   download.setAttribute("download", exportName + ".json");
+//   document.body.appendChild(download); // required for firefox
+//   download.click();
+//   download.remove();
+// }
 
 document.addEventListener("keydown", (event: KeyboardEvent) => {
   const key = event.key.toLowerCase();
@@ -317,10 +499,7 @@ document.addEventListener("mousemove", (e) => {
   const y = Math.floor((e.clientY - rect.top) / (u.TILE_SIZE * scale));
 
   outOfRange = false;
-  if (
-    u.distance(x, y, playerX, playerY) >
-      Math.sqrt(2) * playerReach
-  ) {
+  if (u.distance(x, y, playerX, playerY) > Math.sqrt(2) * playerReach) {
     outOfRange = true;
   }
 
@@ -335,45 +514,22 @@ canvasElement.addEventListener("click", clickCell);
 
 turnButton.addEventListener("click", () => {
   currentTurn++;
-  currentDay.innerHTML = `Day: ${currentTurn}`;
+  currentDay.innerHTML = `${loc["day"]} ${currentTurn}`;
+  saveStateToUndoStack(grid);
   updateGrid();
   newWeather();
   refreshDisplay();
 });
 
-saveButton.addEventListener("click", () => { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
-  downloadSave("save");
-});
-
-loadButton.addEventListener("click", () => {
-  // Dynamically create a hidden input element
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json"; // Limit file selection to JSON files only
-
-  // Wait for the user to select the file
-  input.addEventListener("change", (event) => {
-    const file = (event.target as HTMLInputElement).files![0];
-    const fr = new FileReader();
-
-    // Once the file is read, parse the JSON and load into the grid
-    fr.onload = () => {
-      try {
-        const jsonString = fr.result as string;
-        grid = g.Grid.loadFromJSON(jsonString); // Assuming loadFromJSON exists in g.Grid
-        console.log("Loaded grid:", grid);
-        refreshDisplay(); // Refresh the display to reflect the loaded grid
-        currentDay.innerHTML = `Day: ${currentTurn}`; // Updates current day
-      } catch (err) {
-        console.error("Failed to parse JSON:", err);
-        alert("Invalid JSON file. Please try again.");
-      }
-    };
-
-    fr.readAsText(file);
-  });
-
-  input.click(); // Open the file dialog
+p5Check.addEventListener("change", (e) => {
+  const target = e.target as HTMLInputElement;
+  canvasElement.innerHTML = "";
+  if (target.checked) {
+    renderer = new r.P5Renderer(u.IMAGE_PATHS, scale);
+  } else {
+    renderer = new r.JSRenderer(u.IMAGE_PATHS, scale);
+  }
+  refreshDisplay();
 });
 
 for (let i = 1; i <= 6; i++) {

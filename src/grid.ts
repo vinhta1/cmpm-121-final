@@ -6,9 +6,11 @@ export interface GridCell {
   sun: number;
   water: number;
   backgroundID: number;
+  age: number;
+  planted: boolean;
 }
 
-const OFFSET = 7;
+const OFFSET = 9;
 
 export class Grid {
   private _numCells: number;
@@ -32,14 +34,6 @@ export class Grid {
   public set viewer(value: Uint8Array) {
     this._viewer = value;
   }
-  //stores all the viewers in an array
-  private _stateArray: Uint8Array[];
-  public get stateArray(): Uint8Array[] {
-    return this._stateArray;
-  }
-  public set stateArray(value: Uint8Array[]) {
-    this._stateArray = value;
-  }
   private _width: number;
   public get width(): number {
     return this._width;
@@ -49,24 +43,25 @@ export class Grid {
   }
 
   constructor(width: number, height: number) {
-    // Create an array buffer to store all cells. Cells are comprised of 7 uInt8, depicted in Interface GridCell
+    // Create an array buffer to store all cells. Cells are comprised of 8 uInt8, depicted in Interface GridCell
     this._numCells = width * height;
-    this._buffer = new ArrayBuffer(this._numCells * OFFSET);
-    this._viewer = new Uint8Array(this._buffer); //game state - everything except player location. will need array of this
-    this._stateArray = [];
+    this._buffer = new ArrayBuffer(this.numCells * OFFSET);
+    this._viewer = new Uint8Array(this.buffer);
     this._width = width;
 
     let x = 0;
     let y = 0;
-    for (let i = 0; i < this._numCells; i++) {
-      this._viewer[i * OFFSET] = x;
-      this._viewer[i * OFFSET + 1] = y;
-      x == this._width - 1 ? (x = 0, y++) : x++;
-      this._viewer[i * OFFSET + 2] = 0;
-      this._viewer[i * OFFSET + 3] = 0;
-      this._viewer[i * OFFSET + 4] = 0;
-      this._viewer[i * OFFSET + 5] = 0;
-      this._viewer[i * OFFSET + 6] = 0;
+    for (let i = 0; i < this.numCells; i++) {
+      this.viewer[i * OFFSET] = x;
+      this.viewer[i * OFFSET + 1] = y;
+      x == this.width - 1 ? (x = 0, y++) : x++;
+      this.viewer[i * OFFSET + 2] = 0;
+      this.viewer[i * OFFSET + 3] = 0;
+      this.viewer[i * OFFSET + 4] = 0;
+      this.viewer[i * OFFSET + 5] = 0;
+      this.viewer[i * OFFSET + 6] = 0;
+      this.viewer[i * OFFSET + 7] = 0;
+      this.viewer[i * OFFSET + 8] = 0;
     }
   }
   public setCell(GridCell: GridCell) {
@@ -93,7 +88,10 @@ export class Grid {
       this._viewer[index + 5] = GridCell.water;
     }
     if (GridCell.backgroundID >= 0) {
-      this._viewer[index + 6] = GridCell.backgroundID;
+      this.viewer[index + 6] = GridCell.backgroundID;
+    }
+    if (GridCell.age >= 0) {
+      this.viewer[index + 7] = GridCell.age;
     }
   }
 
@@ -107,39 +105,39 @@ export class Grid {
       );
     }
     return {
-      x: this._viewer[index],
-      y: this._viewer[index + 1],
-      plantID: this._viewer[index + 2],
-      growthLevel: this._viewer[index + 3],
-      sun: this._viewer[index + 4],
-      water: this._viewer[index + 5],
-      backgroundID: this._viewer[index + 6],
+      x: this.viewer[index],
+      y: this.viewer[index + 1],
+      plantID: this.viewer[index + 2],
+      growthLevel: this.viewer[index + 3],
+      sun: this.viewer[index + 4],
+      water: this.viewer[index + 5],
+      backgroundID: this.viewer[index + 6],
+      age: this.viewer[index + 7],
+      planted: this.viewer[index + 8] === 1,
     };
   }
 
-  public gridChange(viewer: Uint8Array) {
-    this.stateArray.push(viewer);
+  public cloneGrid(): Uint8Array {
+    // Clone the entire viewer (Uint8Array) and create a deep copy
+    return new Uint8Array(this.viewer);
   }
 
-  public stateToJSON() {
-    return JSON.stringify({
-      numCells: this._numCells,
-      buffer: this._buffer,
-      viewer: this._viewer,
-      stateArray: this.stateArray,
-      width: this._width,
-    });
-  }
+  public restoreGrid(clonedState: Uint8Array) {
+    if (clonedState.length !== this.viewer.length) {
+      throw new Error("Incompatible grid size during restore!");
+    }
 
-  public static loadFromJSON(JSONFile: string) {
-    const data = JSON.parse(JSONFile);
-    const viewer = new Uint8Array(data.buffer);
-    let stateArray = [];
-    stateArray = data.stateArray;
+    console.log("Restoring grid state...");
+    this.viewer.set(clonedState); // Restore snapshot into the internal buffer
 
-    const grid = new Grid(data.width, data.numCells / data.width + 1);
-    grid._viewer = viewer;
-    grid._stateArray = stateArray;
-    return grid;
+    // Log for debugging: Print all restored grid cells
+    for (let y = 0; y < Math.floor(this.numCells / this.width); y++) {
+      for (let x = 0; x < this.width; x++) {
+        const cell = this.getCell(x, y);
+        console.log(
+          `Restored Cell (${x}, ${y}) - PlantID=${cell.plantID}, GrowthLevel=${cell.growthLevel}`,
+        );
+      }
+    }
   }
 }

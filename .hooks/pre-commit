@@ -4,4 +4,4 @@
 deno check src/
 deno run -A npm:lint-staged
 deno lint src/
-deno fmt --check src/
+deno fmt --check "src/*.ts"
