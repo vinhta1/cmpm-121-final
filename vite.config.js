@@ -12,7 +12,7 @@ export default {
       name: 'Farming-Game',
       short_name: 'FG',
       icons:[{
-        src: "/Icon.png",
+        src: "/cmpm-121-final/Icon.png",
         sizes: "192x192",
         type: "image/png"
       }],
