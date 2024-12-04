@@ -41,19 +41,12 @@ const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = loc["nextDay"];
 app.appendChild(turnButton);
 
-// const saveButton: HTMLButtonElement = document.createElement("button");
-// saveButton.innerHTML = "Save";
-// app.appendChild(saveButton);
-
-// const loadButton: HTMLButtonElement = document.createElement("button");
-// loadButton.innerHTML = "Load";
-// app.appendChild(loadButton);
-
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
-const canvasElement: HTMLDivElement =
-  document.querySelector("#canvas-container")!;
+const canvasElement: HTMLDivElement = document.querySelector(
+  "#canvas-container",
+)!;
 app.appendChild(canvasElement);
 
 const tileInformation: HTMLElement = document.createElement("p");
@@ -135,7 +128,7 @@ function checkWinCondition() {
   //can be used to keep track of win conditions across levels
   const totalHarvested = Object.keys(gameInventory).reduce(
     (sum, key) => sum + gameInventory[key],
-    0
+    0,
   );
 
   if (totalHarvested >= 12) {
@@ -221,7 +214,7 @@ function saveStateToUndoStack(grid: g.Grid) {
   redoStack = [];
   console.log(
     "State saved to undoStack. Current undo stack size:",
-    undoStack.length
+    undoStack.length,
   );
 }
 
@@ -239,7 +232,7 @@ function undo(grid: g.Grid) {
       for (let j = 0; j < width; j++) {
         const cell = grid.getCell(j, i);
         console.log(
-          `Restored cell (${j}, ${i}) - Sun: ${cell.sun}, Water: ${cell.water}`
+          `Restored cell (${j}, ${i}) - Sun: ${cell.sun}, Water: ${cell.water}`,
         );
       }
     }
@@ -261,7 +254,7 @@ function redo(grid: g.Grid) {
     grid.restoreGrid(nextState!);
 
     console.log(
-      `Redo complete. UndoStack size: ${undoStack.length}, RedoStack size: ${redoStack.length}.`
+      `Redo complete. UndoStack size: ${undoStack.length}, RedoStack size: ${redoStack.length}.`,
     );
 
     refreshDisplay();
@@ -325,7 +318,7 @@ function drawBackground() {
         u.IMAGE_PATHS[grid.getCell(j, i).backgroundID],
         tileOffset(j),
         tileOffset(i),
-        u.TILE_SIZE
+        u.TILE_SIZE,
       );
     }
   }
@@ -347,7 +340,7 @@ function drawPlants() {
         plantImage,
         tileOffset(j), // Horizontal position
         tileOffset(i), // Vertical position
-        u.TILE_SIZE
+        u.TILE_SIZE,
       );
     }
   }
@@ -358,7 +351,7 @@ function drawOutline() {
     outOfRange ? u.IMAGE_PATHS[35] : u.IMAGE_PATHS[34],
     tileOffset(outlineX),
     tileOffset(outlineY),
-    16
+    16,
   );
 }
 
@@ -367,7 +360,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-    8
+    8,
   );
 }
 
@@ -454,25 +447,6 @@ globalThis.addEventListener("load", () => {
     console.error("Error loading autosave:", error);
   }
 });
-
-// function downloadSave(exportName: string) { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
-//   const dataStr = "data:text/json;charset=utf-8," +
-//     encodeURIComponent(JSON.stringify(saveGame()));
-//   const download = document.createElement("a");
-//   download.setAttribute("href", dataStr);
-//   download.setAttribute("download", exportName + ".json");
-//   document.body.appendChild(download); // required for firefox
-//   download.click();
-//   download.remove();
-// }
-
-// function uploadSave(){
-//   const upload = document.createElement("input");
-//   upload.type = "file"; upload.accept = ".json";
-//   document.body.appendChild(upload);
-//   upload.click(); upload.remove();
-//   loadGame(JSON.parse(upload))
-// }
 
 function saveGameToSlot(slotName: string) {
   const savedData = saveGame(); // Assume this gathers save data like in your previous code
@@ -588,7 +562,7 @@ document.addEventListener("keydown", (event: KeyboardEvent) => {
   outOfRange = false;
   if (
     u.distance(outlineX, outlineY, playerX, playerY) >
-    Math.sqrt(2) * playerReach
+      Math.sqrt(2) * playerReach
   ) {
     outOfRange = true;
   }
@@ -623,20 +597,6 @@ turnButton.addEventListener("click", () => {
   newWeather();
   refreshDisplay();
 });
-
-// saveButton.addEventListener("click", ()=> {
-//   const saveName = prompt("Save File Name");
-//   if (saveName)
-//     saveGameToSlot(saveName);
-//   else console.log ("Player entered empty save name");
-// });
-
-// loadButton.addEventListener("click", () => {
-//   const loadName = prompt("Load File Name");
-//   if (loadName)
-//     loadGameFromSlot(loadName);
-//   else console.log ("Player entered empty load name");
-// });
 
 p5Check.addEventListener("change", (e) => {
   const target = e.target as HTMLInputElement;
