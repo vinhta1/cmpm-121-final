@@ -7,6 +7,7 @@ export default {
   },
   plugins:[VitePWA({
     registerType: 'autoUpdate',
+    includeAssets: ["**/*.{png}"],
     manifest:{
       name: 'Farming-Game',
       start_url: '/',
