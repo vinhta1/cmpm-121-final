@@ -9,6 +9,8 @@ export default {
     registerType: 'autoUpdate',
     manifest:{
       name: 'Farming-Game',
+      start_url: '/',
+      scope: '/',
       short_name: 'FG',
       icons:[{
         src: "/Icon.png",
