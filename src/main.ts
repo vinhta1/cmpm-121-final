@@ -12,7 +12,10 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 
 const title: HTMLHeadingElement = document.createElement("h1");
 title.id = "title";
-title.innerHTML = loc["title"];
+title.innerHTML = loc["title"] +
+  `<img src="${
+    new URL("./assets/Icon.png", import.meta.url).href
+  }" width="32" height="32" />`;
 app.appendChild(title);
 
 const p5CheckText: HTMLDivElement = document.createElement("h4");
