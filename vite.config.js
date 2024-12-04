@@ -5,5 +5,14 @@ export default {
   server: {
     hmr: false,
   },
-  plugins:[VitePWA({ registerType: 'autoUpdate' })],
+  plugins:[VitePWA({
+    manifest:{
+      registerType: 'autoUpdate',
+      icons:[{
+        src: "/src/assets/crops/Crops15.png",
+        sizes: "16x16",
+        type: "image/png"
+      }],
+    }
+  })],
 };
