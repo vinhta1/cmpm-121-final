@@ -10,8 +10,6 @@ export default {
     includeAssets: ["**/*.{png}"],
     manifest:{
       name: 'Farming-Game',
-      start_url: '/',
-      scope: '/',
       short_name: 'FG',
       icons:[{
         src: "/Icon.png",
