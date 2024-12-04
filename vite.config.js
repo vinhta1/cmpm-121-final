@@ -9,8 +9,8 @@ export default {
     manifest:{
       registerType: 'autoUpdate',
       icons:[{
-        src: "src/assets/crops/Crops15.png",
-        sizes: "16x16",
+        src: "src/assets/Icon.png",
+        sizes: "192x192",
         type: "image/png"
       }],
     }
