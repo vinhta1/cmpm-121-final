@@ -7,12 +7,12 @@ export default {
   },
   plugins:[VitePWA({
     registerType: 'autoUpdate',
-    includeAssets: [new URL('./assets/Icon.png', import.meta.url).href],
+    includeAssets: [new URL('/src/assets/Icon.png', import.meta.url).href],
     manifest:{
       name: 'Farming-Game',
       short_name: 'FG',
       icons:[{
-        src: new URL('./assets/Icon.png', import.meta.url).href,
+        src: new URL('/src/assets/Icon.png', import.meta.url).href,
         sizes: "192x192",
         type: "image/png"
       }],
