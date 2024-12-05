@@ -3,6 +3,9 @@ import * as u from "./utility.ts";
 import * as g from "./grid.ts";
 import * as p from "./plants.ts";
 import * as l from "./localization.ts";
+import * as s from "./scenario.ts";
+
+console.log(s.data);
 
 let loc: l.Localization;
 loc = l.EmojiLoc;

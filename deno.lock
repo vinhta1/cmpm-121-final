@@ -2,6 +2,7 @@
   "version": "4",
   "specifiers": {
     "npm:@types/p5@^1.7.6": "1.7.6",
+    "npm:js-yaml@^4.1.0": "4.1.0",
     "npm:lint-staged@*": "15.2.10",
     "npm:p5@^1.11.1": "1.11.1",
     "npm:vite-plugin-pwa@~0.21.1": "0.21.1_vite@5.4.11_workbox-build@7.3.0__ajv@8.17.1__@babel+core@7.26.0__rollup@2.79.2_workbox-window@7.3.0",
@@ -1051,6 +1052,9 @@
     "ansi-styles@6.2.1": {
       "integrity": "sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug=="
     },
+    "argparse@2.0.1": {
+      "integrity": "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q=="
+    },
     "array-buffer-byte-length@1.0.1": {
       "integrity": "sha512-ahC5W1xgou+KTXix4sAO8Ki12Q+jf4i0+tmk3sC+zgcynshkHxzpXdImBehiUYKKKDwvfFiJl1tZt6ewscS1Mg==",
       "dependencies": [
@@ -1775,6 +1779,12 @@
     },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
+    },
+    "js-yaml@4.1.0": {
+      "integrity": "sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==",
+      "dependencies": [
+        "argparse"
+      ]
     },
     "jsesc@3.0.2": {
       "integrity": "sha512-xKqzzWXDttJuOcawBt4KnKHHIf5oQ/Cxax+0PWFG+DFDgHNAdi+TXECADI+RYiFUMmx8792xsMbbgXj4CwnP4g=="
@@ -2666,6 +2676,7 @@
   "workspace": {
     "dependencies": [
       "npm:@types/p5@^1.7.6",
+      "npm:js-yaml@^4.1.0",
       "npm:p5@^1.11.1",
       "npm:vite-plugin-pwa@~0.21.1"
     ]
