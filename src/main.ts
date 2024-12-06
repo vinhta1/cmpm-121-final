@@ -5,8 +5,6 @@ import * as p from "./plants.ts";
 import * as l from "./localization.ts";
 import * as s from "./scenario.ts";
 
-console.log(s.data);
-
 const bgm01URL = new URL("/src/assets/audio/BGM01.mp3", import.meta.url).href;
 const bgm02URL = new URL("/src/assets/audio/BGM02.mp3", import.meta.url).href;
 const bgm01 = new Audio(bgm01URL);
