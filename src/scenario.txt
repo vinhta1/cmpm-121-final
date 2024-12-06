@@ -37,3 +37,8 @@ weatherEffects:
   clear:
     sunChange: 0
     waterChange: 0
+
+# Win condition
+winCondition:
+  totalHarvests: 12
+  description: "Harvest 12 plants in total to win the game."
