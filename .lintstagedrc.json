@@ -1,6 +1,6 @@
 {
-    "src/*.ts": [
-        "deno lint",
-        "deno fmt"
-    ]
+  "src/*.ts": [
+    "deno lint",
+    "deno fmt"
+  ]
 }

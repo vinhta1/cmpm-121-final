@@ -44,6 +44,12 @@ const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = loc["nextDay"];
 app.appendChild(turnButton);
 
+const moveOptions: HTMLDivElement = document.createElement("div");
+app.appendChild(moveOptions);
+
+const direct = ["up", "down", "left", "right"];
+direct.forEach((direction) => createDirectionButton(direction));
+
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
@@ -149,6 +155,15 @@ function createPlantOptionButton(plantID: number) {
     currentPlant = plantID;
   });
   plantOptions.appendChild(button);
+}
+
+function createDirectionButton(direction: string) {
+  const button = document.createElement("button");
+  button.innerHTML = direction;
+  button.addEventListener("click", () => {
+    move(direction);
+  });
+  moveOptions.appendChild(button);
 }
 
 function clickCell() {

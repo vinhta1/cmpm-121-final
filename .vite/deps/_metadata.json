@@ -1,15 +1,25 @@
 {
-  "hash": "c40c2e2f",
-  "configHash": "01d1e6ab",
+  "hash": "f21fc7a1",
+  "configHash": "bb2e4797",
   "lockfileHash": "e3b0c442",
-  "browserHash": "d3fbf568",
+  "browserHash": "10ae1f89",
   "optimized": {
+    "js-yaml": {
+      "src": "../../node_modules/.deno/js-yaml@4.1.0/node_modules/js-yaml/dist/js-yaml.mjs",
+      "file": "js-yaml.js",
+      "fileHash": "22a65b26",
+      "needsInterop": false
+    },
     "p5": {
       "src": "../../node_modules/.deno/p5@1.11.1/node_modules/p5/lib/p5.min.js",
       "file": "p5.js",
-      "fileHash": "f255dfe7",
+      "fileHash": "3ccda55d",
       "needsInterop": true
     }
   },
-  "chunks": {}
+  "chunks": {
+    "chunk-VUNV25KB": {
+      "file": "chunk-VUNV25KB.js"
+    }
+  }
 }
