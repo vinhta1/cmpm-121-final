@@ -12,6 +12,8 @@
 
   "imports": {
     "@types/p5": "npm:@types/p5@^1.7.6",
-    "p5": "npm:p5@^1.11.1"
+    "js-yaml": "npm:js-yaml@^4.1.0",
+    "p5": "npm:p5@^1.11.1",
+    "vite-plugin-pwa": "npm:vite-plugin-pwa@^0.21.1"
   }
 }

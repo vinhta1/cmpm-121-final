@@ -3,6 +3,9 @@ import * as u from "./utility.ts";
 import * as g from "./grid.ts";
 import * as p from "./plants.ts";
 import * as l from "./localization.ts";
+import * as s from "./scenario.ts";
+
+console.log(s.data);
 
 let loc: l.Localization;
 loc = l.EmojiLoc;
@@ -40,14 +43,6 @@ app.appendChild(currentDay);
 const turnButton: HTMLButtonElement = document.createElement("button");
 turnButton.innerHTML = loc["nextDay"];
 app.appendChild(turnButton);
-
-// const saveButton: HTMLButtonElement = document.createElement("button");
-// saveButton.innerHTML = "Save";
-// app.appendChild(saveButton);
-
-// const loadButton: HTMLButtonElement = document.createElement("button");
-// loadButton.innerHTML = "Load";
-// app.appendChild(loadButton);
 
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
@@ -189,10 +184,12 @@ function clickCell() {
 const undoButton = document.createElement("button");
 undoButton.innerHTML = loc["undo"];
 undoButton.addEventListener("click", () => {
-  undo(grid);
-  currentTurn--; // Update the turn counter for redo
-  if (currentTurn < 0) {
-    currentTurn = 0;
+  if (undoStack.length > 0) {
+    undo(grid);
+    currentTurn--; // Update the turn counter for redo
+    if (currentTurn < 0) {
+      currentTurn = 0;
+    }
   }
   currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
 });
@@ -201,13 +198,15 @@ app.appendChild(undoButton);
 const redoButton = document.createElement("button");
 redoButton.innerHTML = loc["redo"];
 redoButton.addEventListener("click", () => {
-  redo(grid);
-  if (currentTurn < 0) {
-    currentTurn = 0;
-  } else if (currentTurn > undoStack.length) {
-    currentTurn = undoStack.length;
+  if (redoStack.length > 0) {
+    redo(grid);
+    currentTurn++;
+    if (currentTurn < 0) {
+      currentTurn = 0;
+    } else if (currentTurn > undoStack.length) {
+      currentTurn = undoStack.length - 1;
+    }
   }
-  currentTurn++; // Update the turn counter for redo
   currentDay.innerHTML = `${loc["day"]}: ${currentTurn}`; // Update the day display
 });
 app.appendChild(redoButton);
@@ -280,41 +279,16 @@ function newWeather() {
   }
 }
 
-function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
+function updateCell(cell: g.GridCell) {
   if (cell.plantID == 0) return; // Skip empty cells.
 
   const plantRule = p.PLANT_RULE[cell.plantID];
-  if (!plantRule) return; // Skip if no growth rule exists.
-
-  const samePlantNeighbors = neighbors.filter(
-    (n) => n.plantID === cell.plantID,
-  );
-  let adjustedGrowthRate = plantRule.growthrate;
-
-  // **Step 1: Adjust for Neighbor Conditions**
-  if (samePlantNeighbors.length >= 1 && samePlantNeighbors.length <= 2) {
-    const neighborBoostMultiplier = 1.75;
-    adjustedGrowthRate *= neighborBoostMultiplier;
-  } else if (samePlantNeighbors.length >= 3) {
-    const competitionFactor = 2; // Halve growth rate.
-    adjustedGrowthRate /= competitionFactor;
-  }
-
-  if (cell.sun > 5) {
-    const sunBoostMultiplier = 1.5; // 10% boost for enough sun energy.
-    adjustedGrowthRate *= sunBoostMultiplier;
-    //console.log("sun boost", adjustedGrowthRate);
-  }
-
-  if (cell.water >= 5) {
-    const waterBoostMultiplier = 1.25; // 5% boost for water sufficiency.
-    adjustedGrowthRate *= waterBoostMultiplier;
-    //console.log("water boost", adjustedGrowthRate);
-    cell.water -= 1; // Absorb 1 unit of water per turn.
-  }
+  const canGrow = plantRule.growthCondition(grid, { x: cell.x, y: cell.y });
+  cell.age++;
+  if (canGrow < 1) return; // Skip if no growth rule exists.
+  const adjustedGrowthRate = canGrow;
 
   cell.age++;
-
   const requiredTurnsPerStage = adjustedGrowthRate;
   const progress = cell.age * requiredTurnsPerStage;
   const originalGrowth = cell.growthLevel;
@@ -324,32 +298,6 @@ function updateCell(cell: g.GridCell, neighbors: g.GridCell[]) {
   }
 
   grid.setCell(cell);
-
-  console.log(
-    `Cell (${cell.x},${cell.y}) - PlantID: ${cell.plantID}, Same Neighbors: ${samePlantNeighbors.length}, Sun: ${cell.sun}, Water: ${
-      cell.water.toFixed(
-        1,
-      )
-    }, Adjusted GrowthRate: ${
-      adjustedGrowthRate.toFixed(2)
-    }, GrowthLevel: ${cell.growthLevel}`,
-  );
-}
-
-function getSurroundingCells(x: number, y: number) {
-  const cells = [];
-
-  for (let i = -1; i <= 1; i++) {
-    for (let j = -1; j <= 1; j++) {
-      if (i == 0 && j == 0) continue;
-      const dX = x + i;
-      const dY = y + j;
-      if (dX >= 0 && dX < width && dY >= 0 && dY < height) {
-        cells.push(grid.getCell(dX, dY));
-      }
-    }
-  }
-  return cells;
 }
 
 function updateGrid() {
@@ -357,7 +305,7 @@ function updateGrid() {
 
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
-      updateCell(grid.getCell(j, i), getSurroundingCells(j, i));
+      updateCell(grid.getCell(j, i));
     }
   }
 }
@@ -530,25 +478,6 @@ globalThis.addEventListener("load", () => {
   }
 });
 
-// function downloadSave(exportName: string) { //https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
-//   const dataStr = "data:text/json;charset=utf-8," +
-//     encodeURIComponent(JSON.stringify(saveGame()));
-//   const download = document.createElement("a");
-//   download.setAttribute("href", dataStr);
-//   download.setAttribute("download", exportName + ".json");
-//   document.body.appendChild(download); // required for firefox
-//   download.click();
-//   download.remove();
-// }
-
-// function uploadSave(){
-//   const upload = document.createElement("input");
-//   upload.type = "file"; upload.accept = ".json";
-//   document.body.appendChild(upload);
-//   upload.click(); upload.remove();
-//   loadGame(JSON.parse(upload))
-// }
-
 function saveGameToSlot(slotName: string) {
   const savedData = saveGame(); // Assume this gathers save data like in your previous code
   const savePayload = {
@@ -675,20 +604,6 @@ turnButton.addEventListener("click", () => {
   newWeather();
   refreshDisplay();
 });
-
-// saveButton.addEventListener("click", ()=> {
-//   const saveName = prompt("Save File Name");
-//   if (saveName)
-//     saveGameToSlot(saveName);
-//   else console.log ("Player entered empty save name");
-// });
-
-// loadButton.addEventListener("click", () => {
-//   const loadName = prompt("Load File Name");
-//   if (loadName)
-//     loadGameFromSlot(loadName);
-//   else console.log ("Player entered empty load name");
-// });
 
 p5Check.addEventListener("change", (e) => {
   const target = e.target as HTMLInputElement;
