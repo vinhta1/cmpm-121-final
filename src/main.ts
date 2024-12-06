@@ -478,6 +478,33 @@ function loadGame(data: [string, string, string]) {
   refreshDisplay();
 }
 
+function move(direction: string) {
+  if (u.KEY_MAP[direction] == "up" || direction == "up") {
+    playerY--;
+  }
+  if (u.KEY_MAP[direction] == "down" || direction == "down") {
+    playerY++;
+  }
+  if (u.KEY_MAP[direction] == "left" || direction == "left") {
+    playerX--;
+  }
+  if (u.KEY_MAP[direction] == "right" || direction == "right") {
+    playerX++;
+  }
+  playerX = u.clamp(playerX, width - 1, 0);
+  playerY = u.clamp(playerY, height - 1, 0);
+
+  outOfRange = false;
+  if (
+    u.distance(outlineX, outlineY, playerX, playerY) >
+      Math.sqrt(2) * playerReach
+  ) {
+    outOfRange = true;
+  }
+
+  refreshDisplay();
+}
+
 globalThis.addEventListener("beforeunload", () => {
   //const autoSave: string[] = saveGame();
   //localStorage.setItem("autosave",JSON.stringify(autoSave))
@@ -618,30 +645,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("keydown", (event: KeyboardEvent) => {
   const key = event.key.toLowerCase();
-  if (u.KEY_MAP[key] == "up") {
-    playerY--;
-  }
-  if (u.KEY_MAP[key] == "down") {
-    playerY++;
-  }
-  if (u.KEY_MAP[key] == "left") {
-    playerX--;
-  }
-  if (u.KEY_MAP[key] == "right") {
-    playerX++;
-  }
-  playerX = u.clamp(playerX, width - 1, 0);
-  playerY = u.clamp(playerY, height - 1, 0);
-
-  outOfRange = false;
-  if (
-    u.distance(outlineX, outlineY, playerX, playerY) >
-      Math.sqrt(2) * playerReach
-  ) {
-    outOfRange = true;
-  }
-
-  refreshDisplay();
+  move(key);
 });
 
 document.addEventListener("mousemove", (e) => {
