@@ -19,9 +19,7 @@ bgmList.forEach((bgm) => {
   });
 });
 
-let loc: l.Localization;
-loc = l.EmojiLoc;
-loc = l.EnglishLoc;
+const loc: l.Localization = l.getCurrentLocalization();
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -59,6 +57,7 @@ app.appendChild(turnButton);
 const moveOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(moveOptions);
 
+// work on these next
 const direct = ["up", "down", "left", "right"];
 direct.forEach((direction) => createDirectionButton(direction));
 
@@ -72,6 +71,57 @@ app.appendChild(canvasElement);
 
 const tileInformation: HTMLElement = document.createElement("p");
 app.appendChild(tileInformation);
+
+function refreshUI() {
+  const loc = l.getCurrentLocalization(); // Fetch the active localization
+  title.innerHTML = loc.title;
+  currentDay.innerHTML = `${loc.day}: ${currentTurn}`;
+  undoButton.innerHTML = loc.undo;
+  redoButton.innerHTML = loc.redo;
+  turnButton.innerHTML = loc.nextDay;
+
+  if (checkWinCondition()) {
+    winText.innerHTML = loc.win; // Display the localized win message
+  } else {
+    winText.innerHTML = ""; // Clear the win message if the condition is not met
+  }
+
+  moveOptions.innerHTML = ""; // Clear existing buttons
+  const directions = ["up", "down", "left", "right"]; // Standard directions
+  directions.forEach((direction) => createDirectionButton(direction)); // Create localized buttons
+
+  p5CheckText.innerHTML = loc.useP5;
+  p5CheckText.appendChild(p5Check);
+
+  plantOptions.innerHTML = ""; // Clear existing buttons
+  for (let plantID = 1; plantID <= 6; plantID++) {
+    createPlantOptionButton(plantID); // Recreate buttons with current localization
+  }
+
+  // Update tile information if applicable
+  displayCurrentTileInformation(); // Use localized values for tiles
+  renderSaveManager();
+}
+
+const languageSelector = document.createElement("select");
+languageSelector.innerHTML = `
+ <option value="English">English</option>
+ <option value="Emoji">😃</option>
+ <option value="Spanish">Español</option>
+ <option value="Cantonese">廣州話</option>
+ <option value="Arabic">عربي</option>
+`;
+languageSelector.addEventListener("change", (e) => {
+  const selectedLang = (e.target as HTMLSelectElement).value as
+    | "English"
+    | "Emoji"
+    | "Spanish"
+    | "Cantonese"
+    | "Arabic";
+  l.switchLanguage(selectedLang);
+  refreshUI(); // Refresh the UI to reflect the new language
+});
+document.body.appendChild(languageSelector);
 
 const width = 10;
 const height = 5;
@@ -144,6 +194,7 @@ function handleHarvest(plantID: number) {
   console.log("Current Inventory:", gameInventory);
 
   checkWinCondition();
+  refreshUI();
 }
 
 function checkWinCondition() {
@@ -155,13 +206,13 @@ function checkWinCondition() {
 
   if (totalHarvested >= 12) {
     console.log("Win condition met!");
-    winText.innerHTML = loc["win"];
     return true;
   }
   return false;
 }
 
 function createPlantOptionButton(plantID: number) {
+  const loc = l.getCurrentLocalization();
   const button = document.createElement("button");
   button.innerHTML = loc[p.PLANT_MAP[plantID].name as keyof l.Localization];
   button.addEventListener("click", () => {
@@ -171,8 +222,11 @@ function createPlantOptionButton(plantID: number) {
 }
 
 function createDirectionButton(direction: string) {
+  const loc = l.getCurrentLocalization();
+  const localizedLabel = loc[`direction${direction}` as keyof l.Localization];
+
   const button = document.createElement("button");
-  button.innerHTML = direction;
+  button.innerHTML = localizedLabel;
   button.addEventListener("click", () => {
     move(direction);
   });
@@ -396,6 +450,7 @@ function drawPlayer() {
 }
 
 function displayCurrentTileInformation() {
+  const loc = l.getCurrentLocalization();
   if (outlineX >= 0 && outlineX < width && outlineY >= 0 && outlineY < height) {
     const tile: g.GridCell = grid.getCell(outlineX, outlineY);
 
@@ -492,14 +547,17 @@ function playRandomBGM() {
 globalThis.addEventListener("beforeunload", () => {
   //const autoSave: string[] = saveGame();
   //localStorage.setItem("autosave",JSON.stringify(autoSave))
-  saveGameToSlot("gameSave_autosave");
+  const loc = l.getCurrentLocalization(); // Dynamically fetch localization
+  saveGameToSlot(loc["gameSave"]);
 });
 
 globalThis.addEventListener("load", () => {
+  const loc = l.getCurrentLocalization();
+  const autoKeySave = loc["gameSave"];
   try {
-    const autosave = localStorage.getItem("gameSave_autosave");
+    const autosave = localStorage.getItem(autoKeySave);
     if (autosave) {
-      if (confirm("An autosave was found. Would you like to load it?")) {
+      if (confirm(loc["autoSavePrompt"])) {
         const savePayload = JSON.parse(autosave);
         loadGame(savePayload.data); // Load the autosave data
         console.log("Autosave loaded successfully.");
@@ -543,6 +601,7 @@ function deleteSaveSlot(slotName: string) {
 
 function renderSaveManager() {
   const saveManager = document.getElementById("save-manager");
+  const loc = l.getCurrentLocalization();
   saveManager!.innerHTML = ""; // Clear existing UI
 
   // Get all save slots from localStorage
@@ -558,20 +617,20 @@ function renderSaveManager() {
       // Display slot info
       saveSlot.innerHTML = `
         <strong>${key}</strong><br>
-        Saved at: ${new Date(savePayload.timestamp).toLocaleString()}
+        ${loc["savedAt"]}: ${new Date(savePayload.timestamp).toLocaleString()}
       `;
 
       // Add Load button
       const loadButton = document.createElement("button");
-      loadButton.innerText = "Load";
+      loadButton.innerText = loc["load"];
       loadButton.addEventListener("click", () => loadGameFromSlot(key));
       saveSlot.appendChild(loadButton);
 
       // Add Delete button
       const deleteButton = document.createElement("button");
-      deleteButton.innerText = "Delete";
+      deleteButton.innerText = loc["delete"];
       deleteButton.addEventListener("click", () => {
-        if (confirm(`Delete save slot: ${key}?`)) {
+        if (confirm(`${loc["deleteConfirm"]}: ${key}?`)) {
           deleteSaveSlot(key);
           renderSaveManager(); // Update the UI after deletion
         }
@@ -584,13 +643,13 @@ function renderSaveManager() {
 
   // Add Save Button for New Slot
   const newSaveButton = document.createElement("button");
-  newSaveButton.innerText = "New Save Slot";
+  newSaveButton.innerText = loc["newSaveSlot"];
   newSaveButton.addEventListener("click", () => {
-    const saveName = prompt("Enter a name for the new save slot:");
+    const saveName = prompt(loc["enterSaveName"]);
     if (saveName) {
       const slotName = `gameSave_${saveName}`;
       if (localStorage.getItem(slotName)) {
-        if (!confirm(`Slot "${slotName}" already exists. Overwrite?`)) return;
+        if (!confirm(`${loc["overwriteConfirm"]}: "${slotName}"?`)) return;
       }
       saveGameToSlot(slotName);
       renderSaveManager(); // Update UI after saving
