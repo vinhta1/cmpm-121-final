@@ -7,6 +7,18 @@ import * as s from "./scenario.ts";
 
 console.log(s.data);
 
+const bgm01URL = new URL("/src/assets/audio/BGM01.mp3", import.meta.url).href;
+const bgm02URL = new URL("/src/assets/audio/BGM02.mp3", import.meta.url).href;
+const bgm01 = new Audio(bgm01URL);
+const bgm02 = new Audio(bgm02URL);
+const bgmList = [bgm01, bgm02];
+let bgmPlaying = false;
+bgmList.forEach((bgm) => {
+  bgm.addEventListener("ended", () => {
+    bgmPlaying = false;
+  });
+});
+
 let loc: l.Localization;
 loc = l.EmojiLoc;
 loc = l.EnglishLoc;
@@ -120,6 +132,7 @@ function _setGridTestRandomPlants() {
 const gameInventory: Record<string, number> = {}; // A simple global object to track collected produce
 
 function handleHarvest(plantID: number) {
+  playRandomBGM();
   const plantName = p.PLANT_MAP[plantID].name;
 
   // Add the harvested plant to the player's inventory
@@ -466,6 +479,14 @@ function move(direction: string) {
   }
 
   refreshDisplay();
+}
+
+function playRandomBGM() {
+  if (!bgmPlaying) {
+    console.log("bgm playing now");
+    bgmList[Math.floor(Math.random() * bgmList.length)].play();
+    bgmPlaying = true;
+  }
 }
 
 globalThis.addEventListener("beforeunload", () => {

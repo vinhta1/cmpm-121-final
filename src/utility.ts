@@ -1,4 +1,5 @@
 export const IMAGE_PATHS: string[] = [];
+// export const AUDIO_PATHS: string[] = [];
 export const TILE_SIZE: number = 16;
 
 export const KEY_MAP: Record<string, string> = {
@@ -32,3 +33,6 @@ for (let i = 1; i <= 33; i++) {
 
 IMAGE_PATHS.push(new URL("./assets/outline.png", import.meta.url).href);
 IMAGE_PATHS.push(new URL("./assets/outline2.png", import.meta.url).href);
+
+// AUDIO_PATHS.push(new URL("./assets/audio/BGM01.mp3", import.meta.url).href);
+// AUDIO_PATHS.push(new URL("./assets/audio/BGM02.mp3", import.meta.url).href);
