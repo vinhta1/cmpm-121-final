@@ -109,36 +109,129 @@ and follow best practices including formatting our code and refactoring.
 - Code formatting and refactoring practices
 
 # Devlog 11/27 - F0 Reflection
+
 ## How we satisfied the software requirements:
 
 ### [F0.a]
-The game takes place on a predefined grid. The player can move from one grid cell to any bordering grid cell not including diagonals. The player's movement is fixed to the grid. The player movement is controlled via the WASD keys.
+
+The game takes place on a predefined grid. The player can move from one grid
+cell to any bordering grid cell not including diagonals. The player's movement
+is fixed to the grid. The player movement is controlled via the WASD keys.
 
 ### [F0.b]
-The game starts on turn zero. There is a button that allows the player to move one turn forward. Moving forward a turn updates all the plants on the grid based on predefined rules. This is the only way for plants to progress to the next growth stage.
+
+The game starts on turn zero. There is a button that allows the player to move
+one turn forward. Moving forward a turn updates all the plants on the grid based
+on predefined rules. This is the only way for plants to progress to the next
+growth stage.
 
 ### [F0.c]
-When the player moves their mouse around the grid, the grid that their mouse is on is highlighted. If the mouse is too far from the player, it will highlight red and only show the tile information. If the mouse is close to the player, it will be highlighted green and allow the player to plant or harvest in that cell.
+
+When the player moves their mouse around the grid, the grid that their mouse is
+on is highlighted. If the mouse is too far from the player, it will highlight
+red and only show the tile information. If the mouse is close to the player, it
+will be highlighted green and allow the player to plant or harvest in that cell.
 
 ### [F0.d]
-Each grid location has an associated interface. The interface contains information of the following: plantID, growth, sun, water, backgroundID, and age. Every turn, the sun value is set to a random value and the water value is incremented by a random amount. Plants use up water while they grow. 
+
+Each grid location has an associated interface. The interface contains
+information of the following: plantID, growth, sun, water, backgroundID, and
+age. Every turn, the sun value is set to a random value and the water value is
+incremented by a random amount. Plants use up water while they grow.
 
 ### [F0.e]
-There are currently six different types of plants and each plant has three distinct growth phases. [Hana Caraka - Farming Crops Pack](https://bagong-games.itch.io/hana-caraka-crops-pack) is the source for the images. The important information for each plant is stored in a separate plants.ts file.
+
+There are currently six different types of plants and each plant has three
+distinct growth phases.
+[Hana Caraka - Farming Crops Pack](https://bagong-games.itch.io/hana-caraka-crops-pack)
+is the source for the images. The important information for each plant is stored
+in a separate plants.ts file.
 
 ### [F0.f]
-There are simple spatial rules that govern plant growth based on the following factors: sun energy, water accumulation, and nearby plants of the same species. Each plant has a different growth rate, maturing at different times. Plants progress through four growth stages: initial planting, sprouting, budding, and full maturity. If two plants of the same species are near one another, they receive a significant boost. However, if three or more plants of the same species are planted next to each other, they will have competition for resources, decreasing their time to grow. If seeds are planted in slots with five or more solar energy points, they receive an initial ten percent growth boost. Similarly, if seeds are planted in slots with five or more water points, plants receive a five percent boost. 
+
+There are simple spatial rules that govern plant growth based on the following
+factors: sun energy, water accumulation, and nearby plants of the same species.
+Each plant has a different growth rate, maturing at different times. Plants
+progress through four growth stages: initial planting, sprouting, budding, and
+full maturity. If two plants of the same species are near one another, they
+receive a significant boost. However, if three or more plants of the same
+species are planted next to each other, they will have competition for
+resources, decreasing their time to grow. If seeds are planted in slots with
+five or more solar energy points, they receive an initial ten percent growth
+boost. Similarly, if seeds are planted in slots with five or more water points,
+plants receive a five percent boost.
 
 ### [F0.g]
-The win condition for this level is relatively simple, consisting of the player collecting 12 or more plants of any variety. This was implemented by creating a dictionary to hold information about the plants harvested. Once the plants matured and the player clicked on them, the location slot would revert back to its original state. Before this occurs, information about the species of plant and the number of plants collected is added to a dictionary. This dictionary is later referenced, and if its length is greater than or equal to 12, the win text appears. This indicates that the player has won the level. 
+
+The win condition for this level is relatively simple, consisting of the player
+collecting 12 or more plants of any variety. This was implemented by creating a
+dictionary to hold information about the plants harvested. Once the plants
+matured and the player clicked on them, the location slot would revert back to
+its original state. Before this occurs, information about the species of plant
+and the number of plants collected is added to a dictionary. This dictionary is
+later referenced, and if its length is greater than or equal to 12, the win text
+appears. This indicates that the player has won the level.
 
 ## Reflection:
-Jack O’Brien - I think what we got done had fulfilled the requirements we needed for this.  The functionality was well defined and everything seemed to work as intended.  Even though more polish could have been added to the visual side, everything seems conveyed in an understandable way.  I do think we could have talked more about the game as a team and had more meetings throughout the work.  Luke ended up making a lot of the base of the game before most of the discussion had happened.  By doing this, we could have separated the work out more instead of having most of the foundation done by one person.  As a member, I would have liked to contribute more as most of what I did was the win condition and fixing a bug with the growth level which was a problem.  Most of this is due to me working on D3 as well as other projects I had in other classes.
-  
-Vinh - We definitely could have used a production lead of some sort. Luke laid the foundation of F0 and the rest of the game down, but we had never discussed the themes or details of the game past a few general ideas. F0 was halfway done before we would talk about the game again as a team. Maybe as a result, we decided to move forward with a different language and alternate platform; but I think that’s just the necessity of descoping, as with most class projects. *We’re all busy and stressed out, I don’t blame us for how things started.* With that being said, I don’t know if we’d instate a production lead formally. We’re all on the same page now, and we talk more now. I’m glad about that. I’ve been working ahead on F1, but I do wish I was able to help more with F0. Regardless, everyone’s picking up our game pretty quick. *I’m proud of the team for our ability to work together, and especially appreciative of Luke for getting our momentum going.* I hope I can do more going forward.
-  
-Tony Pau - For F0 we have completed all the requirements and all within a week too. The big issue was the time spent on F0 was definitely short and could be started at an earlier date. Everything was done within a week after the initial due date. We’ve tried to do group meets and tried to plan everything out but a chaotic week and other factors made it very difficult. I do wish I played a bigger role for F0 since the workload was very unbalanced and although we did call which part we would do, it wasn’t too well planned and could’ve used more group decision to decide a fair even work load. I’m definitely gonna do more for future parts of this project but for F0 specifically I felt pretty useless as we all were busy and all the parts of F0 were pretty much done.
-  
-Isha Chury - I think that fulfilled all of the requirements necessary for completing the F0 assignment. However, I do think that as a group we could have assigned tasks earlier, and split the workload more evenly. While we did have some team meetings, we weren’t initially certain of the requirements and instead focused on other things including assigning team roles and setting up our workflows. Luke wrote a large amount of code for the F0 assignment, establishing the base of our game and its functionality. While the majority of F0 had been set-up, other team members helped refine the code and add some of the pending requirements. I helped in implementing the growth and spatial rules for plants, as well as refactoring the code for the win condition. I feel that if I had started earlier I could have helped contribute more towards the code. However, because of this, we as a team are talking more about splitting roles and workload more evenly. I think that going forwards, we will be more careful in making sure that no one person has too much of a workload. 
-  
-Luke Murayama - We had a couple early meetings where we discussed roles and even met up in person to discuss what we were going to do. I first worked on getting p5js to work with Deno and Vite, then I mainly focused on getting it encapsulated so the renderer would be easy to swap. I jumped the gun a bit since I had the free time and began just trying to implement basic features, but I regret not consulting the team first before going ahead, it wasn’t really fair. We had multiple meetings since then and other team members have helped to flesh out the game and actually make it playable. We did end up reducing the scope of the game from some of our more ambitious ideas.
+
+Jack O’Brien - I think what we got done had fulfilled the requirements we needed
+for this. The functionality was well defined and everything seemed to work as
+intended. Even though more polish could have been added to the visual side,
+everything seems conveyed in an understandable way. I do think we could have
+talked more about the game as a team and had more meetings throughout the work.
+Luke ended up making a lot of the base of the game before most of the discussion
+had happened. By doing this, we could have separated the work out more instead
+of having most of the foundation done by one person. As a member, I would have
+liked to contribute more as most of what I did was the win condition and fixing
+a bug with the growth level which was a problem. Most of this is due to me
+working on D3 as well as other projects I had in other classes.
+
+Vinh - We definitely could have used a production lead of some sort. Luke laid
+the foundation of F0 and the rest of the game down, but we had never discussed
+the themes or details of the game past a few general ideas. F0 was halfway done
+before we would talk about the game again as a team. Maybe as a result, we
+decided to move forward with a different language and alternate platform; but I
+think that’s just the necessity of descoping, as with most class projects.
+_We’re all busy and stressed out, I don’t blame us for how things started._ With
+that being said, I don’t know if we’d instate a production lead formally. We’re
+all on the same page now, and we talk more now. I’m glad about that. I’ve been
+working ahead on F1, but I do wish I was able to help more with F0. Regardless,
+everyone’s picking up our game pretty quick. _I’m proud of the team for our
+ability to work together, and especially appreciative of Luke for getting our
+momentum going._ I hope I can do more going forward.
+
+Tony Pau - For F0 we have completed all the requirements and all within a week
+too. The big issue was the time spent on F0 was definitely short and could be
+started at an earlier date. Everything was done within a week after the initial
+due date. We’ve tried to do group meets and tried to plan everything out but a
+chaotic week and other factors made it very difficult. I do wish I played a
+bigger role for F0 since the workload was very unbalanced and although we did
+call which part we would do, it wasn’t too well planned and could’ve used more
+group decision to decide a fair even work load. I’m definitely gonna do more for
+future parts of this project but for F0 specifically I felt pretty useless as we
+all were busy and all the parts of F0 were pretty much done.
+
+Isha Chury - I think that fulfilled all of the requirements necessary for
+completing the F0 assignment. However, I do think that as a group we could have
+assigned tasks earlier, and split the workload more evenly. While we did have
+some team meetings, we weren’t initially certain of the requirements and instead
+focused on other things including assigning team roles and setting up our
+workflows. Luke wrote a large amount of code for the F0 assignment, establishing
+the base of our game and its functionality. While the majority of F0 had been
+set-up, other team members helped refine the code and add some of the pending
+requirements. I helped in implementing the growth and spatial rules for plants,
+as well as refactoring the code for the win condition. I feel that if I had
+started earlier I could have helped contribute more towards the code. However,
+because of this, we as a team are talking more about splitting roles and
+workload more evenly. I think that going forwards, we will be more careful in
+making sure that no one person has too much of a workload.
+
+Luke Murayama - We had a couple early meetings where we discussed roles and even
+met up in person to discuss what we were going to do. I first worked on getting
+p5js to work with Deno and Vite, then I mainly focused on getting it
+encapsulated so the renderer would be easy to swap. I jumped the gun a bit since
+I had the free time and began just trying to implement basic features, but I
+regret not consulting the team first before going ahead, it wasn’t really fair.
+We had multiple meetings since then and other team members have helped to flesh
+out the game and actually make it playable. We did end up reducing the scope of
+the game from some of our more ambitious ideas.

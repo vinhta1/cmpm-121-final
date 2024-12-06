@@ -72,7 +72,7 @@ function refreshUI() {
     winText.innerHTML = ""; // Clear the win message if the condition is not met
   }
 
-  p5CheckText.innerHTML = loc.useP5;
+  p5Check.innerHTML = loc.useP5;
 
   plantOptions.innerHTML = ""; // Clear existing buttons
   for (let plantID = 1; plantID <= 6; plantID++) {
