@@ -1,4 +1,4 @@
-plantTypes:
+export const yamlstring = `plantTypes:
   - turnip
   - radish
   - carrot
@@ -30,3 +30,4 @@ weatherCycle:
 winCondition:
   totalHarvests: 12
   description: "Harvest 12 plants in total to win the game."
+`

@@ -348,13 +348,23 @@ function redo(grid: g.Grid) {
 
 export function newWeather() {
   // set the sun level and add to the water level
-
-  for (let i = 0; i < height; i++) {
-    for (let j = 0; j < width; j++) {
-      const cell = grid.getCell(j, i);
-      cell.sun = Math.floor(Math.random() * 9 + 1);
-      cell.water = cell.water + Math.floor(Math.random() * 5);
-      grid.setCell(cell);
+  if(currentTurn == 1) {
+    const weather = s.getWeather();
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        const cell = grid.getCell(j, i);
+        cell.sun = weather.sunChange;
+        cell.water = weather.waterChange;
+        grid.setCell(cell);
+      }}
+  } else {
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        const cell = grid.getCell(j, i);
+        cell.sun = Math.floor(Math.random() * 9 + 1);
+        cell.water = cell.water + Math.floor(Math.random() * 5);
+        grid.setCell(cell);
+      }
     }
   }
 }
