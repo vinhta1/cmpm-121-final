@@ -374,7 +374,7 @@ function updateCell(cell: g.GridCell) {
   if (originalGrowth > cell.growthLevel) {
     cell.growthLevel = originalGrowth;
   }
-  cell.water -= 1;
+  if (cell.water > 0) cell.water -= 1;
 
   grid.setCell(cell);
 }
