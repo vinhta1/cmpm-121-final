@@ -694,7 +694,6 @@ turnButton.addEventListener("click", () => {
   currentDay.innerHTML = `${loc["day"]} ${currentTurn}`;
   saveStateToUndoStack(grid);
   updateGrid();
-  newWeather();
   refreshDisplay();
 });
 
