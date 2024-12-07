@@ -235,3 +235,84 @@ regret not consulting the team first before going ahead, it wasn’t really fair
 We had multiple meetings since then and other team members have helped to flesh
 out the game and actually make it playable. We did end up reducing the scope of
 the game from some of our more ambitious ideas.
+
+## How we satisfied the software requirements:
+
+### [F1.a]
+The grid state is stored as an array buffer containing an array of structs. Each tile on the grid is represented as a series of 8 Uint8s in the grid array. Each one of the Uint8s represents a piece of information, from the location of the tile, the water level, or what plant is growing there.
+
+### [F1.b]
+The save/load function is implemented in two parts. The grid class we have implemented is able to serialize its state into a string. This string is a representation of the Uint8 series that our grid is stored as. This string can also be deserialized back into an array of Uint8, so that we may restore the save state. This is our two primary save/load helper methods. Then, our main file can use these helper methods to save the game into a JSON and load the game from a JSON, by creating or reading said file and setting the grid state to match.
+
+### [F1.c]
+Autosaving is pretty straightforward. Anytime the “beforeunload” event is sent, i.e. refreshing or closing the page, it will save into a localstorage with a key called “autosave.” This can then be loaded the same way saves are loaded, so that players can come back right before they quit the game.
+
+### [F1.d] 
+To create the undo and redo functionality, the entire grid array was cloned and added to the undo stack. This stack would capture the array every time the user made a change to it, including information about the plant’s growth level, water levels, and sun energy levels. This was specifically handled through the saveStatetoUndoStack function. This function is called every time the player presses the turn button, updating the game state. The undo function adds the most recent state of the grid (prior to the change) to the redo stack, and calls the pop function. This makes it so that the previous version of the grid state can be accessed, and through the use of the refreshDisplay function, can be visually shown on the plant’s tile. The reo function follows similar logic, in which the redo stack pushes the current state to the undo stack, and later calls on the pop function. This allows it to revert back to the player’s original state. 
+
+### How does the user interface provides feedback to players on their available choices and the impacts of their choices
+Parts of the game's UI are built using HTML elements. HTML buttons, while not the most aesthetic, easily convey interactivity with their shape and how they react to mouse events. The UI that’s part of the game view is mainly shown through a highlight that will display on whichever tile the mouse is hovering over. A green highlight indicates that the tile is in range and a red tile is out of range.
+
+When the player clicks on a tile, the impact is immediate as it shows seeds placed on the tile. There is also a tile information section placed below the game view which tells the player information about the tile. As the player presses the turn button over a period of time, the plants visually show growth, going from being represented as a seedling to a fully mature plant. 
+
+
+## How we satisfied the software requirements
+```mermaid
+block-beta
+columns 1
+    A["Array Buffer (AOS)"]
+    BlockArrow<["Split into 8 Byte Chunks"]>(down)
+    block:array
+        B["n+6 to n"]
+        C["27 to 21"]
+        D["20 to 14"]
+        E["13 to 7"]
+        F["6 to 0"]
+    end
+    BlockArrow2<["Each Chunk Represents a Struct"]>(down)
+    block:struct
+        a["uint8 0"]
+        b["uint8 1"]
+        c["uint8 2"]
+        d["uint8 3"]
+        e["uint8 4"]
+        f["uint8 5"]
+        g["uint8 6"]
+        h["uint8 7"]
+    end
+    block:inside
+        1["x"]
+        2["y"]
+        3["Plant ID"]
+        4["Growth Level"]
+        5["Sun"]
+        6["Water"]
+        7["Background ID"]
+        8["Age"]
+    end
+
+
+    a-->1
+    b-->2
+    c-->3
+    d-->4
+    e-->5
+    f-->6
+    g-->7
+    h-->8
+
+
+```
+
+## Reflection
+
+Jack O’Brien - We were working on both the F0 and F1 portions of this simultaneously.  I did not get to add much to this portion mostly due to conflicts in other assignments I had, but the progress this team was able to make is impressive to say the least.  However, we did have a similar problem to the last assignment where we did not talk much through meetings as a team to go over some of this ahead of time.  A lot of the work still fell on Luke, but the work was at least spread out more as we went on with this part of the project.  This was a better effort, but I know we can and will do better in the future.
+
+Luke Murayama - I created the base for the grid and the underlying array buffer. I chose to use only uint8s not for space efficiency but because it made the implementation much more simple. It also made it easier for the buffer to be modified by others, which it was. Changes weren’t really made based on any player feedback, but by the design sense of all the people working on the games. We’ve been somewhat behind schedule so have not considered any drastic changes after the initial base was complete.
+
+Vinh Ta - For F1, I assigned myself the task of implementing saves. It sounded so easy on paper, but I time and time again ran into errors that I couldn’t begin to comprehend. I think one thing I’d like to do moving forward is to utilize Brace more often. I spent too much time scrambling through documentation and StackOverflow and not enough time identifying and fixing problems. I’d like to mention how grateful I am for this team. A lot of my learning has come through and from them.
+
+Isha Chury - For the F1 assignment, I worked on the undo and redo functionality. I felt that Luke had set up the base for the code very well, so it was relatively easy to add on. The undo and redo functions were relatively straightforward, though I did run into a few bugs. This was primarily because the grid array did not save the day counter, so it created a mismatch between the current day within the game (as counted by the player) and what was displayed on the screen. Other than that, I did not run into any major errors, and was able to add my part of the assignment relatively quickly. I did feel that we were behind schedule due to Thanksgiving break, but I hope we can pick up our pace soon and get things done. 
+
+Tony Pau - For F1 I didn’t work on much. I assigned myself to F2 and worked on designing an external scenario for the game. I also had many big assignments for this class and other classes that I was needing to finish, from writing reports to designing assets for games. Although I haven’t got to work on F1 personally, the team made impressive progress on the assignment in such a short time. I think we did better compared to F0 as we had assigned roles for specific tasks, but the same issue popped up where we had an issue meeting up. I think we made a huge improvement from F1 and I think we can take from this for work on future installations of this project. As chaotic this assignment was, I think the team did amazing and Thanksgiving break was much needed to slow everything down as everyone has been overwhelmed with many assignments with close deadlines.
+
