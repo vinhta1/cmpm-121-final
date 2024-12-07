@@ -236,6 +236,8 @@ We had multiple meetings since then and other team members have helped to flesh
 out the game and actually make it playable. We did end up reducing the scope of
 the game from some of our more ambitious ideas.
 
+# Devlog 12/4 - F1 Reflection
+
 ## How we satisfied the software requirements:
 
 ### [F1.a]
