@@ -3,7 +3,7 @@ import * as u from "./utility.ts";
 import * as g from "./grid.ts";
 import * as p from "./plants.ts";
 import * as l from "./localization.ts";
-import * as s from "./scenario.ts";
+import * as _s from "./scenario.ts";
 
 const bgm01URL = new URL("/src/assets/audio/BGM01.mp3", import.meta.url).href;
 const bgm02URL = new URL("/src/assets/audio/BGM02.mp3", import.meta.url).href;
@@ -443,7 +443,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-    8,
+    16,
   );
 }
 

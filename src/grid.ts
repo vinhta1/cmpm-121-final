@@ -42,12 +42,21 @@ export class Grid {
     this._width = value;
   }
 
+  private _height: number;
+  public get height(): number {
+    return this._height;
+  }
+  public set height(value: number) {
+    this._height = value;
+  }
+
   constructor(width: number, height: number) {
     // Create an array buffer to store all cells. Cells are comprised of 8 uInt8, depicted in Interface GridCell
     this._numCells = width * height;
     this._buffer = new ArrayBuffer(this.numCells * OFFSET);
     this._viewer = new Uint8Array(this.buffer);
     this._width = width;
+    this._height = height;
 
     let x = 0;
     let y = 0;

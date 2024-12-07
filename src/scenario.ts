@@ -1,12 +1,8 @@
 import YAML from "js-yaml";
-import fs from "fs";
+import fs from "node:fs";
 
 // imports plant types and rules
-import { PLANT_MAP, PLANT_RULE } from "./plants.ts";
-
-// declares grid and size
-const width = 10;
-const height = 5;
+import { PLANT_MAP } from "./plants.ts";
 
 // imports grid structure
 import { Grid } from "./grid.ts";
@@ -33,18 +29,18 @@ function checkWinCondition() {
 }
 
 // simulates in-game day
-function simulateDay(grid: Grid, day: number) {
+function _simulateDay(grid: Grid, _day: number) {
   // randomly selects weather for day
   const weather = getRandomWeather();
-  
+
   // applies weather to sun and water levels for each tile
   applyWeather(grid, weather);
-  
+
   // simulates plant growth and harvest
   for (let x = 0; x < grid.width; x++) {
     for (let y = 0; y < grid.height; y++) {
       const cell = grid.getCell(x, y);
-      
+
       if (cell.plantID !== 0) {
         const plantType = PLANT_MAP[cell.plantID].name;
         const plantRule = scenario.plantRules[plantType];
@@ -55,7 +51,11 @@ function simulateDay(grid: Grid, day: number) {
           // harvest condition
           if (growth > 1.5) {
             harvestCount++;
-            console.log(`Harvested a ${PLANT_MAP[cell.plantID].name} at (${x}, ${y}). Harvest count: ${harvestCount}`);
+            console.log(
+              `Harvested a ${
+                PLANT_MAP[cell.plantID].name
+              } at (${x}, ${y}). Harvest count: ${harvestCount}`,
+            );
             cell.plantID = 0; // removes plant after harvested
           }
         }
@@ -72,7 +72,9 @@ function simulateDay(grid: Grid, day: number) {
 
 // randomly selects weather condition for given day
 function getRandomWeather(): WeatherCondition {
-  const randomIndex = Math.floor(Math.random() * scenario.weatherConditions.length);
+  const randomIndex = Math.floor(
+    Math.random() * scenario.weatherConditions.length,
+  );
   return scenario.weatherConditions[randomIndex];
 }
 
