@@ -63,7 +63,7 @@ export class Grid {
     for (let i = 0; i < this.numCells; i++) {
       this.viewer[i * OFFSET] = x;
       this.viewer[i * OFFSET + 1] = y;
-      x == this.width - 1 ? ((x = 0), y++) : x++;
+      x == this.width - 1 ? (x = 0, y++) : x++;
       this.viewer[i * OFFSET + 2] = 0;
       this.viewer[i * OFFSET + 3] = 0;
       this.viewer[i * OFFSET + 4] = 0;
@@ -76,13 +76,12 @@ export class Grid {
   public setCell(GridCell: GridCell) {
     const index = (GridCell.y * this._width + GridCell.x) * OFFSET;
     if (
-      this._viewer[index] != GridCell.x ||
-      this._viewer[index + 1] != GridCell.y
+      this._viewer[index] != GridCell.x || this._viewer[index + 1] != GridCell.y
     ) {
       throw new Error(
         `Buffer isn't lined up: input ${GridCell.x},${GridCell.y}, buffer ${
           this._viewer[index]
-        },${this._viewer[index + 1]}`
+        },${this._viewer[index + 1]}`,
       );
     }
     if (GridCell.plantID >= 0) {
@@ -111,7 +110,7 @@ export class Grid {
       throw new Error(
         `Buffer isn't lined up: input ${x},${y}, buffer ${
           this._viewer[index]
-        },${this._viewer[index + 1]}`
+        },${this._viewer[index + 1]}`,
       );
     }
     return {
@@ -145,7 +144,7 @@ export class Grid {
       for (let x = 0; x < this.width; x++) {
         const cell = this.getCell(x, y);
         console.log(
-          `Restored Cell (${x}, ${y}) - PlantID=${cell.plantID}, GrowthLevel=${cell.growthLevel}`
+          `Restored Cell (${x}, ${y}) - PlantID=${cell.plantID}, GrowthLevel=${cell.growthLevel}`,
         );
       }
     }

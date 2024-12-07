@@ -62,8 +62,9 @@ direct.forEach((direction) => createDirectionButton(direction));
 const plantOptions: HTMLDivElement = document.createElement("div");
 app.appendChild(plantOptions);
 
-const canvasElement: HTMLDivElement =
-  document.querySelector("#canvas-container")!;
+const canvasElement: HTMLDivElement = document.querySelector(
+  "#canvas-container",
+)!;
 app.appendChild(canvasElement);
 
 const tileInformation: HTMLElement = document.createElement("p");
@@ -198,7 +199,7 @@ function checkWinCondition() {
   //can be used to keep track of win conditions across levels
   const totalHarvested = Object.keys(gameInventory).reduce(
     (sum, key) => sum + gameInventory[key],
-    0
+    0,
   );
 
   if (totalHarvested >= 12) {
@@ -296,7 +297,7 @@ function saveStateToUndoStack(grid: g.Grid) {
   redoStack = [];
   console.log(
     "State saved to undoStack. Current undo stack size:",
-    undoStack.length
+    undoStack.length,
   );
 }
 
@@ -314,7 +315,7 @@ function undo(grid: g.Grid) {
       for (let j = 0; j < width; j++) {
         const cell = grid.getCell(j, i);
         console.log(
-          `Restored cell (${j}, ${i}) - Sun: ${cell.sun}, Water: ${cell.water}`
+          `Restored cell (${j}, ${i}) - Sun: ${cell.sun}, Water: ${cell.water}`,
         );
       }
     }
@@ -336,7 +337,7 @@ function redo(grid: g.Grid) {
     grid.restoreGrid(nextState!);
 
     console.log(
-      `Redo complete. UndoStack size: ${undoStack.length}, RedoStack size: ${redoStack.length}.`
+      `Redo complete. UndoStack size: ${undoStack.length}, RedoStack size: ${redoStack.length}.`,
     );
 
     refreshDisplay();
@@ -400,7 +401,7 @@ function drawBackground() {
         u.IMAGE_PATHS[grid.getCell(j, i).backgroundID],
         tileOffset(j),
         tileOffset(i),
-        u.TILE_SIZE
+        u.TILE_SIZE,
       );
     }
   }
@@ -422,7 +423,7 @@ function drawPlants() {
         plantImage,
         tileOffset(j), // Horizontal position
         tileOffset(i), // Vertical position
-        u.TILE_SIZE
+        u.TILE_SIZE,
       );
     }
   }
@@ -433,7 +434,7 @@ function drawOutline() {
     outOfRange ? u.IMAGE_PATHS[35] : u.IMAGE_PATHS[34],
     tileOffset(outlineX),
     tileOffset(outlineY),
-    16
+    16,
   );
 }
 
@@ -442,11 +443,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-<<<<<<< Updated upstream
     16,
-=======
-    8
->>>>>>> Stashed changes
   );
 }
 
@@ -670,34 +667,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("keydown", (event: KeyboardEvent) => {
   const key = event.key.toLowerCase();
-<<<<<<< Updated upstream
   move(key);
-=======
-  if (u.KEY_MAP[key] == "up") {
-    playerY--;
-  }
-  if (u.KEY_MAP[key] == "down") {
-    playerY++;
-  }
-  if (u.KEY_MAP[key] == "left") {
-    playerX--;
-  }
-  if (u.KEY_MAP[key] == "right") {
-    playerX++;
-  }
-  playerX = u.clamp(playerX, width - 1, 0);
-  playerY = u.clamp(playerY, height - 1, 0);
-
-  outOfRange = false;
-  if (
-    u.distance(outlineX, outlineY, playerX, playerY) >
-    Math.sqrt(2) * playerReach
-  ) {
-    outOfRange = true;
-  }
-
-  refreshDisplay();
->>>>>>> Stashed changes
 });
 
 document.addEventListener("mousemove", (e) => {

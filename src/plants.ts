@@ -90,7 +90,7 @@ export const PLANT_RULE: Record<number, plant> = {
       const neighbors = getSurroundingCells(position.x, position.y, grid);
       let growth = 1;
       const samePlantNeighbors = neighbors.filter(
-        (n) => n.plantID === cell.plantID
+        (n) => n.plantID === cell.plantID,
       );
       if (cell.sun >= 2) {
         growth *= 1.1;
@@ -111,7 +111,7 @@ export const PLANT_RULE: Record<number, plant> = {
       let growth = 1;
       const notPlantNeighbors = neighbors.filter((n) => n.plantID !== 0);
       const samePlantNeighbors = neighbors.filter(
-        (n) => n.plantID === cell.plantID
+        (n) => n.plantID === cell.plantID,
       );
       if (notPlantNeighbors.length != samePlantNeighbors.length) {
         growth *= 0.25;

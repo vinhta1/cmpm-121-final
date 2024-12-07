@@ -1,15 +1,8 @@
 {
-<<<<<<< Updated upstream
   "hash": "f21fc7a1",
   "configHash": "bb2e4797",
   "lockfileHash": "e3b0c442",
   "browserHash": "10ae1f89",
-=======
-  "hash": "94b1792b",
-  "configHash": "a792d4fa",
-  "lockfileHash": "38802b54",
-  "browserHash": "a2fee016",
->>>>>>> Stashed changes
   "optimized": {
     "js-yaml": {
       "src": "../../node_modules/.deno/js-yaml@4.1.0/node_modules/js-yaml/dist/js-yaml.mjs",
@@ -20,11 +13,7 @@
     "p5": {
       "src": "../../node_modules/.deno/p5@1.11.1/node_modules/p5/lib/p5.min.js",
       "file": "p5.js",
-<<<<<<< Updated upstream
       "fileHash": "3ccda55d",
-=======
-      "fileHash": "c8deb6a1",
->>>>>>> Stashed changes
       "needsInterop": true
     }
   },
