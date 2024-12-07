@@ -202,7 +202,7 @@ export function checkWinCondition() {
     0,
   );
 
-  if (totalHarvested >= 12) {
+  if (totalHarvested >= s.getWinCon()) {
     console.log("Win condition met!");
     return true;
   }
@@ -348,8 +348,9 @@ function redo(grid: g.Grid) {
 
 export function newWeather() {
   // set the sun level and add to the water level
-  if(currentTurn == 1) {
-    const weather = s.getWeather();
+  const customWeather = s.weatherCheck(currentTurn);
+  if(customWeather != "none") {
+    const weather = s.getWeather(customWeather);
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
         const cell = grid.getCell(j, i);
@@ -704,6 +705,7 @@ turnButton.addEventListener("click", () => {
   currentDay.innerHTML = `${loc["day"]} ${currentTurn}`;
   saveStateToUndoStack(grid);
   updateGrid();
+  newWeather();
   refreshDisplay();
 });
 
