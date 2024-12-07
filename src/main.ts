@@ -195,7 +195,7 @@ function handleHarvest(plantID: number) {
   refreshUI();
 }
 
-function checkWinCondition() {
+export function checkWinCondition() {
   //can be used to keep track of win conditions across levels
   const totalHarvested = Object.keys(gameInventory).reduce(
     (sum, key) => sum + gameInventory[key],
@@ -346,7 +346,7 @@ function redo(grid: g.Grid) {
   }
 }
 
-function newWeather() {
+export function newWeather() {
   // set the sun level and add to the water level
 
   for (let i = 0; i < height; i++) {

@@ -6,21 +6,6 @@ plantTypes:
   - onion
   - spinach
 
-# Plant rules definitions
-plantRules:
-  turnip:
-    growthCondition: "turnipGrowthCondition"
-  radish:
-    growthCondition: "radishGrowthCondition"
-  carrot:
-    growthCondition: "carrotGrowthCondition"
-  potato:
-    growthCondition: "potatoGrowthCondition"
-  onion:
-    growthCondition: "onionGrowthCondition"
-  spinach:
-    growthCondition: "spinachGrowthCondition"
-
 weatherConditions:
   - dry
   - rainy
