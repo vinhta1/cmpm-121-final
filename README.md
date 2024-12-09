@@ -326,6 +326,7 @@ Tony Pau - For F1 I didn’t work on much. I assigned myself to F2 and worked on
 Growth conditions were changed because of the requirements on this video.
 
 ### F2a External DSL for Scenario Design
+This part is approached by storing the scenario using a YAML file format. On the scenario, we listed everything into one big string which is parsed into JS and contains information on the weather and win condition. The scenario.ts file will read the string file and export it onto our main file in order to create custom weather that affects the sun and water levels of the tiles on specific days and also gets the win condition.
 
 ### F2b Internal DSL for Plants and Growth Conditions
 For this we made a separate interface that contained a growth function which took in a grid and the x and y of the cell.  This then checks certain conditions based on the plant which vary from some caring about sun and water levels more to caring about neighbors and who is neighboring each other.  This then returns the number value used to multiply with for the growth rate that is used each iteration of growth for the plant.
