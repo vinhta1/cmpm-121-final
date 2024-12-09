@@ -207,14 +207,14 @@ function handleHarvest(plantID: number) {
   refreshUI();
 }
 
-function checkWinCondition() {
+export function checkWinCondition() {
   //can be used to keep track of win conditions across levels
   const totalHarvested = Object.keys(gameInventory).reduce(
     (sum, key) => sum + gameInventory[key],
     0,
   );
 
-  if (totalHarvested >= 12) {
+  if (totalHarvested >= s.getWinCon()) {
     console.log("Win condition met!");
     winSFX.play();
     return true;
@@ -362,15 +362,26 @@ function redo(grid: g.Grid) {
   }
 }
 
-function newWeather() {
+export function newWeather() {
   // set the sun level and add to the water level
-
-  for (let i = 0; i < height; i++) {
-    for (let j = 0; j < width; j++) {
-      const cell = grid.getCell(j, i);
-      cell.sun = Math.floor(Math.random() * 9 + 1);
-      cell.water = cell.water + Math.floor(Math.random() * 5);
-      grid.setCell(cell);
+  const customWeather = s.weatherCheck(currentTurn);
+  if(customWeather != "none") {
+    const weather = s.getWeather(customWeather);
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        const cell = grid.getCell(j, i);
+        cell.sun = weather.sunChange;
+        cell.water = weather.waterChange;
+        grid.setCell(cell);
+      }}
+  } else {
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        const cell = grid.getCell(j, i);
+        cell.sun = Math.floor(Math.random() * 9 + 1);
+        cell.water = cell.water + Math.floor(Math.random() * 5);
+        grid.setCell(cell);
+      }
     }
   }
 }
