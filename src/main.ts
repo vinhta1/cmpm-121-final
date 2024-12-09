@@ -3,19 +3,31 @@ import * as u from "./utility.ts";
 import * as g from "./grid.ts";
 import * as p from "./plants.ts";
 import * as l from "./localization.ts";
-import * as s from "./scenario.ts";
+import * as _s from "./scenario.ts";
 
 const bgm01URL = new URL("/src/assets/audio/BGM01.mp3", import.meta.url).href;
 const bgm02URL = new URL("/src/assets/audio/BGM02.mp3", import.meta.url).href;
+const bgm03URL = new URL("/src/assets/audio/BGM03.mp3", import.meta.url).href;
 const bgm01 = new Audio(bgm01URL);
 const bgm02 = new Audio(bgm02URL);
-const bgmList = [bgm01, bgm02];
+const bgm03 = new Audio(bgm03URL);
+const bgmList = [bgm01, bgm02, bgm03];
 let bgmPlaying = false;
 bgmList.forEach((bgm) => {
   bgm.addEventListener("ended", () => {
     bgmPlaying = false;
   });
 });
+
+const plantSFXURL =
+  new URL("/src/assets/audio/PlantSFX.mp3", import.meta.url).href;
+const harvestSFXURL =
+  new URL("/src/assets/audio/HarvestSFX.mp3", import.meta.url).href;
+const winSFXURL = new URL("/src/assets/audio/WinSFX.mp3", import.meta.url).href;
+const plantSFX = new Audio(plantSFXURL);
+const harvestSFX = new Audio(harvestSFXURL);
+harvestSFX.volume = 0.5;
+const winSFX = new Audio(winSFXURL);
 
 const loc: l.Localization = l.getCurrentLocalization();
 
@@ -204,6 +216,7 @@ export function checkWinCondition() {
 
   if (totalHarvested >= s.getWinCon()) {
     console.log("Win condition met!");
+    winSFX.play();
     return true;
   }
   return false;
@@ -243,6 +256,7 @@ function clickCell() {
     console.log(cell.plantID);
 
     handleHarvest(cell.plantID);
+    harvestSFX.play();
 
     cell.plantID = 0; // Remove the plant
     cell.growthLevel = 0; // Reset growth level
@@ -256,6 +270,8 @@ function clickCell() {
     cell.growthLevel = 0;
     //cell.age = 0;
     //cell.water = 0;
+
+    plantSFX.play();
   }
   grid.setCell(cell);
   refreshDisplay();
@@ -378,7 +394,6 @@ function updateCell(cell: g.GridCell) {
   cell.age++;
   if (canGrow < 1) return; // Skip if no growth rule exists.
   const adjustedGrowthRate = canGrow;
-
   cell.age++;
   const requiredTurnsPerStage = adjustedGrowthRate;
   const progress = cell.age * requiredTurnsPerStage;
@@ -387,6 +402,7 @@ function updateCell(cell: g.GridCell) {
   if (originalGrowth > cell.growthLevel) {
     cell.growthLevel = originalGrowth;
   }
+  if (cell.water > 0) cell.water -= 1;
 
   grid.setCell(cell);
 }
@@ -454,7 +470,7 @@ function drawPlayer() {
     u.IMAGE_PATHS[0],
     tileOffset(playerX),
     tileOffset(playerY),
-    8,
+    16,
   );
 }
 
