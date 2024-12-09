@@ -21,7 +21,7 @@ export function distance(x1: number, y1: number, x2: number, y2: number) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
-IMAGE_PATHS.push(new URL("./assets/test_pixel.png", import.meta.url).href);
+IMAGE_PATHS.push(new URL("./assets/player.png", import.meta.url).href);
 
 function getCropUrl(name: string) {
   return new URL(`./assets/crops/${name}.png`, import.meta.url).href;
