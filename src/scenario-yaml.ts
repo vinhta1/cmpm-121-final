@@ -1,5 +1,4 @@
-export const yamlstring =
-`
+export const yamlstring = `
 weatherEffects:
   sunny:
     sunChange: 5
@@ -35,4 +34,4 @@ weatherCycle:
 winCondition:
   totalHarvests: 12
   description: "Harvest 12 plants in total to win the game."
-`
+`;

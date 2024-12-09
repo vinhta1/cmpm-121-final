@@ -1,19 +1,21 @@
+// @deno-types="npm:@types/js-yaml@^4.0.9"
 import YAML from "js-yaml";
-import {yamlstring} from "./scenario-yaml.ts"
+import { yamlstring } from "./scenario-yaml.ts";
 
-const scenario = YAML.load(yamlstring);
+// deno-lint-ignore no-explicit-any
+const scenario: any = YAML.load(yamlstring);
 
 export function debugprint() {
   console.log(YAML.load(yamlstring));
 }
 
-export function getWeather(getWeather:string) {
+export function getWeather(getWeather: string) {
   const weathercon = scenario.weatherEffects;
-  return weathercon[getWeather]
+  return weathercon[getWeather];
 }
 
 export function weatherCheck(day: number) {
-  const weather = scenario.weatherCycle[day.toString()]||"none";
+  const weather = scenario.weatherCycle[day.toString()] || "none";
   if (weather == "none") {
     return "none";
   } else {
@@ -23,5 +25,5 @@ export function weatherCheck(day: number) {
 }
 
 export function getWinCon() {
-  return parseInt(scenario.winCondition["totalHarvests"])
+  return parseInt(scenario.winCondition["totalHarvests"]);
 }

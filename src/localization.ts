@@ -6,6 +6,7 @@ export type Localization = {
   directiondown: string;
   directionleft: string;
   directionright: string;
+  req: string;
   win: string;
   turnip: string;
   radish: string;
@@ -46,6 +47,7 @@ export const EnglishLoc: Localization = {
   directiondown: "Down",
   directionleft: "Left",
   directionright: "Right",
+  req: "Please Harvest",
   win: "You Win!",
   turnip: "Turnip",
   radish: "Radish",
@@ -87,6 +89,7 @@ export const EmojiLoc: Localization = {
   directiondown: "⬇️",
   directionleft: "⬅️",
   directionright: "➡️",
+  req: "🥕#️⃣",
   win: "🏆🎉",
   turnip: "🌰",
   radish: "🌶️",
@@ -128,6 +131,7 @@ export const SpanishLoc: Localization = {
   directiondown: "Abajo",
   directionleft: "Izquierda",
   directionright: "Derecha",
+  req: "Por favor cosecha",
   win: "¡Ganaste!",
   turnip: "Nabo",
   radish: "Rábano",
@@ -169,6 +173,7 @@ export const CantoneseLoc: Localization = {
   directiondown: "下",
   directionleft: "左",
   directionright: "右",
+  req: "唔該收穫",
   win: "你贏咗！",
   turnip: "蕪菁",
   radish: "蘿蔔",
@@ -210,6 +215,7 @@ export const ArabicLoc: Localization = {
   directiondown: "أسفل",
   directionleft: "يسار",
   directionright: "يمين",
+  req: "الرجاء الحصاد",
   win: "لقد فزت!",
   turnip: "لفت",
   radish: "فجل",

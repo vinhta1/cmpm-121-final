@@ -3,7 +3,7 @@ import * as u from "./utility.ts";
 import * as g from "./grid.ts";
 import * as p from "./plants.ts";
 import * as l from "./localization.ts";
-import * as _s from "./scenario.ts";
+import * as s from "./scenario.ts";
 
 const bgm01URL = new URL("/src/assets/audio/BGM01.mp3", import.meta.url).href;
 const bgm02URL = new URL("/src/assets/audio/BGM02.mp3", import.meta.url).href;
@@ -46,6 +46,10 @@ const p5Check: HTMLInputElement = document.createElement("input");
 p5Check.type = "checkbox";
 p5Check.checked = true;
 p5CheckText.appendChild(p5Check);
+
+const reqText: HTMLDivElement = document.createElement("h3");
+reqText.innerHTML = `${loc["req"]}: ${s.getWinCon()}`;
+app.appendChild(reqText);
 
 const winText: HTMLDivElement = document.createElement("h1");
 winText.innerHTML = "";
@@ -92,8 +96,10 @@ function refreshUI() {
 
   if (checkWinCondition()) {
     winText.innerHTML = loc.win; // Display the localized win message
+    reqText.innerHTML = "";
   } else {
     winText.innerHTML = ""; // Clear the win message if the condition is not met
+    reqText.innerHTML = `${loc["req"]}: ${s.getWinCon()}`;
   }
 
   moveOptions.innerHTML = ""; // Clear existing buttons
@@ -365,7 +371,7 @@ function redo(grid: g.Grid) {
 export function newWeather() {
   // set the sun level and add to the water level
   const customWeather = s.weatherCheck(currentTurn);
-  if(customWeather != "none") {
+  if (customWeather != "none") {
     const weather = s.getWeather(customWeather);
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
@@ -373,7 +379,8 @@ export function newWeather() {
         cell.sun = weather.sunChange;
         cell.water = weather.waterChange;
         grid.setCell(cell);
-      }}
+      }
+    }
   } else {
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
