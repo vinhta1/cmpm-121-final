@@ -252,7 +252,7 @@ export const ArabicLoc: Localization = {
 let currentLoc: Localization = EnglishLoc; // Default language is English
 
 export function switchLanguage(
-  lang: "English" | "Emoji" | "Spanish" | "Cantonese" | "Arabic",
+  lang: "English" | "Emoji" | "Spanish" | "Cantonese" | "Arabic"
 ) {
   if (lang === "Emoji") {
     currentLoc = EmojiLoc;
