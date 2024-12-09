@@ -318,3 +318,29 @@ Isha Chury - For the F1 assignment, I worked on the undo and redo functionality.
 
 Tony Pau - For F1 I didn’t work on much. I assigned myself to F2 and worked on designing an external scenario for the game. I also had many big assignments for this class and other classes that I was needing to finish, from writing reports to designing assets for games. Although I haven’t got to work on F1 personally, the team made impressive progress on the assignment in such a short time. I think we did better compared to F0 as we had assigned roles for specific tasks, but the same issue popped up where we had an issue meeting up. I think we made a huge improvement from F1 and I think we can take from this for work on future installations of this project. As chaotic this assignment was, I think the team did amazing and Thanksgiving break was much needed to slow everything down as everyone has been overwhelmed with many assignments with close deadlines.
 
+# Devlog 12/6 - F2 Reflection
+
+## How we satisfied the software requirements
+
+### F0+F1
+Growth conditions were changed because of the requirements on this video.
+
+### F2a External DSL for Scenario Design
+
+### F2b Internal DSL for Plants and Growth Conditions
+For this we made a separate interface that contained a growth function which took in a grid and the x and y of the cell.  This then checks certain conditions based on the plant which vary from some caring about sun and water levels more to caring about neighbors and who is neighboring each other.  This then returns the number value used to multiply with for the growth rate that is used each iteration of growth for the plant.
+
+### F2c Switch to Alternate Platform
+We switched from using the canvas provided by P5js to just using the basic javascript canvas. This was fairly simple and required barely any changes to the main code since a renderer class was created to completely encapsulate the P5js code. The renderers both provided two functions, one that adds an image to the canvas and one that clears the canvas. The canvases can be switched while the game is running.
+
+## Reflection
+
+Jack O’Brien - I worked on F2b in its entirety. For this, I made rules for each plant to give it something unique itself. Some depend on certain sun and water values, while others depend more on neighbors. To accomplish this, I created an interface featuring a function called growthCondition which takes in a grid and position(x,y) then returns a number used as the growth multiplier for the plant based on the conditionals within that said plant.  This all replaced the original logic and makes it unique amongst each plant. I was also working on the video for the F0 whilst doing this assignment which made things difficult since I had to use an older version on that video instead. The amount of in-person meetings we had helped with me figuring out what to do for this as my teammates were there to help when I was having trouble.
+
+Luke Murayama - I worked on creating the original P5js renderer so for F2 I worked on switching over to the default JS canvas. We also had multiple team meetings that assigned different requirements to different people. I think that the initial lead roles kinda fell away at this point. Nonetheless, I think everybody worked hard for this portion of the project. 
+
+Vinh Ta - I didn’t do much for F2. While the team was working on F2, I think I just moved ahead to F3 and tried to help complete some of those software requirements. I did work on adding some juice to the game. I made some music for the game and implemented it in a way so it played once the player harvested a plant. The code is extremely messy and all in main. I’d like to learn how to encapsulate it into its own file, like the others did with their code for things like plants, grids, localization, etc. As it is currently, it’s all over the place. It still works nonetheless, and I hope it makes our game stand out a bit.
+
+Isha Chury - For the F2 assignment, I was not able to contribute as much. I mainly assigned myself to the F3a and F3b requirements, but I did try to help others understand how I implemented the plant growth rates and various boosts. Though I didn’t explicitly work on the F2 assignment, I did use the time to start implementing my parts for the F3 assignment. Compared to F0 and F1, I felt that though we were a little behind, we did get things in and communicated more about our progress. Though not all of us were able to make in-person meetings, we did reach out regarding our roles and committed to the repository. I think the team did an amazing job putting together this project, and refining it. 
+
+Tony Pau - For F2, I have focused on doing F2.A. I started with a pretty complicated design for my first attempt then redid it using Yaml. I never used Yaml and github stuff in general is quite confusing to me so I had a lot of issues from needing to run —no verify in terminal to commit to learning different methods for reading and writing files. This assignment really made me lose it as I spent days on it and got basically nowhere but eventually everything was in theory working. Stuff was broken but the vision was there but once again I had to scrap the approach and restart and was stuck again. It was a very frustrating cycle but eventually I got a break. Compared to F0 and F1, F2 was a big step up and I think is where everyone knew what parts they were working on, deadlines, and meeting times. We definitely were on top of our game for F2 and the team did amazing.
